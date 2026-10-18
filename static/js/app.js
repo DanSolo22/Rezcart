@@ -2,13 +2,17 @@
 // Punto de entrada principal y enrutador de vistas de la maqueta Rezcart
 
 import { state } from './core/state.js';
+import { dataService } from './core/data_service.js';
 import { calculateFreshness } from './core/formatters.js';
 import { initCartsModule, renderCartChips, renderCartItems } from './modules/carts.js';
 import { initPantryModule, renderPantryItems, renderCheckinWidget } from './modules/pantry.js';
 import { initVisionScannerModule } from './modules/vision_scanner.js';
 import { initRecipesModule, renderRecipes, openChefAiModal, openDietProfileModal } from './modules/recipes.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Inicializar persistencia dual IndexedDB / LocalStorage
+  await state.init();
+
   // Inicializar módulos principales (3 vistas clave)
   initCartsModule();
   initPantryModule();
@@ -21,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializar componente distintivo: Pulso de Cocina
   updateKitchenVitalityBar();
   bindVitalityActions();
+
+  // Indicador de estado de sincronización dual
+  bindSyncStatusIndicator();
 
   // Re-render reactivo cuando el estado cambie
   state.subscribe(() => {
@@ -156,6 +163,34 @@ function bindVitalityActions() {
       openDietProfileModal();
     });
   }
+}
+
+function bindSyncStatusIndicator() {
+  const badgeEl = document.getElementById('sync-badge-pill');
+  const iconEl = document.getElementById('sync-badge-icon');
+  const textEl = document.getElementById('sync-badge-text');
+
+  if (!badgeEl || !iconEl || !textEl) return;
+
+  function updateBadge(info) {
+    badgeEl.className = 'sync-badge-pill';
+    if (!info.isOnline) {
+      badgeEl.classList.add('offline');
+      iconEl.className = 'fa-solid fa-cloud-arrow-up';
+      textEl.textContent = info.outboxCount > 0 ? `Modo Súper (${info.outboxCount} en cola)` : 'Modo Súper Offline';
+    } else if (info.outboxCount > 0) {
+      badgeEl.classList.add('syncing');
+      iconEl.className = 'fa-solid fa-arrows-rotate fa-spin';
+      textEl.textContent = `Sincronizando (${info.outboxCount})...`;
+    } else {
+      badgeEl.classList.add('synced');
+      iconEl.className = 'fa-solid fa-cloud';
+      textEl.textContent = 'IndexedDB Activo';
+    }
+  }
+
+  dataService.onSyncStateChange(updateBadge);
+  updateBadge({ isOnline: dataService.isOnline, outboxCount: dataService.getPendingOutboxCountSync() });
 }
 
 

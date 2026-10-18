@@ -1,7 +1,8 @@
 // static/js/core/state.js
-// Almacen reactivo central con datos semilla realistas para la maqueta
+// Almacen reactivo central con soporte dual offline-first (IndexedDB + Outbox)
 
 import { classifyItemLocal } from './formatters.js';
+import { dataService } from './data_service.js';
 
 class AppState {
   constructor() {
@@ -157,6 +158,24 @@ class AppState {
     this.currentView = 'carts'; // 'carts', 'pantry', 'recipes'
   }
 
+  // Inicialización asíncrona de datos desde IndexedDB / LocalStorage
+  async init() {
+    await dataService.init();
+    const stored = await dataService.loadInitialData({
+      carts: this.carts,
+      pantry: this.pantry,
+      dietaryProfile: this.dietaryProfile,
+      activeCartId: this.activeCartId
+    });
+
+    if (stored.carts && stored.carts.length > 0) this.carts = stored.carts;
+    if (stored.pantry && stored.pantry.length > 0) this.pantry = stored.pantry;
+    if (stored.dietaryProfile) this.dietaryProfile = stored.dietaryProfile;
+    if (stored.activeCartId) this.activeCartId = stored.activeCartId;
+
+    this.notify();
+  }
+
   // Suscripcion a cambios
   subscribe(fn) {
     this.listeners.push(fn);
@@ -174,6 +193,7 @@ class AppState {
   setActiveCart(cartId) {
     this.activeCartId = cartId;
     this.notify();
+    dataService.persistCarts(this.carts, this.activeCartId);
   }
 
   createCart(name, type = 'mixed') {
@@ -186,6 +206,7 @@ class AppState {
     this.carts.push(newCart);
     this.activeCartId = newCart.id;
     this.notify();
+    dataService.persistCarts(this.carts, this.activeCartId);
     return newCart;
   }
 
@@ -205,6 +226,7 @@ class AppState {
 
     cart.items.unshift(newItem);
     this.notify();
+    dataService.persistCarts(this.carts, this.activeCartId);
     return newItem;
   }
 
@@ -215,6 +237,7 @@ class AppState {
     if (item) {
       item.bought = !item.bought;
       this.notify();
+      dataService.persistCarts(this.carts, this.activeCartId);
     }
   }
 
@@ -223,6 +246,7 @@ class AppState {
     if (!cart) return;
     cart.items = cart.items.filter(i => i.id !== itemId);
     this.notify();
+    dataService.persistCarts(this.carts, this.activeCartId);
   }
 
   // Finalizar compra: traspaso guiado a la despensa
@@ -256,6 +280,9 @@ class AppState {
     cart.items = pendingItems;
 
     this.notify();
+    dataService.persistCarts(this.carts, this.activeCartId);
+    dataService.persistPantry(this.pantry);
+
     return {
       culinaryAdded: boughtCulinary.length,
       nonFoodArchived: boughtNonFood.length,
@@ -280,6 +307,8 @@ class AppState {
     }
 
     this.notify();
+    dataService.persistPantry(this.pantry);
+    dataService.persistCarts(this.carts, this.activeCartId);
   }
 
   verifyFreshnessPantryItem(itemId) {
@@ -287,6 +316,7 @@ class AppState {
     if (item) {
       item.daysAgo = 0; // Confirmado fresco hoy
       this.notify();
+      dataService.persistPantry(this.pantry);
     }
   }
 
@@ -316,6 +346,7 @@ class AppState {
     });
 
     this.notify();
+    dataService.persistPantry(this.pantry);
   }
 
   // --- Perfil Dietético ---
@@ -325,6 +356,7 @@ class AppState {
       restrictions: Array.isArray(restrictions) ? restrictions : []
     };
     this.notify();
+    dataService.persistDietaryProfile(this.dietaryProfile);
   }
 
   getDietaryInfo() {
@@ -359,6 +391,29 @@ class AppState {
       restrictions: this.dietaryProfile.restrictions,
       restrictionsLabels: this.dietaryProfile.restrictions.map(r => restrictionLabels[r] || r)
     };
+  }
+
+  // Guardar receta generada por el Chef IA o creada por el usuario (Recetario Híbrido)
+  saveCustomRecipe(recipe) {
+    const newRecipe = {
+      id: 'rec-ai-' + Date.now(),
+      title: recipe.title,
+      time: recipe.time || '20 min',
+      difficulty: recipe.difficulty || 'Fácil',
+      bases: recipe.bases || [this.dietaryProfile.base],
+      allergens: recipe.allergens || [],
+      keto: recipe.keto || false,
+      description: recipe.description,
+      ingredients: recipe.ingredients || [],
+      optional: recipe.optional || [],
+      substitutions: recipe.substitutions || {},
+      source: recipe.source || 'chef_ai',
+      isFavorite: true
+    };
+    this.recipes.unshift(newRecipe);
+    this.notify();
+    dataService.enqueueOutbox('SYNC_RECIPES', 'recipes', { recipe: newRecipe });
+    return newRecipe;
   }
 }
 

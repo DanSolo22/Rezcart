@@ -3,6 +3,7 @@
 
 import { state } from '../core/state.js';
 import { notifications } from '../core/ui_notifications.js';
+import { dataService } from '../core/data_service.js';
 
 export function initVisionScannerModule() {
   bindPurchasePhotoEvents();
@@ -40,17 +41,17 @@ function bindPurchasePhotoEvents() {
   btnOpen?.addEventListener('click', () => modal.classList.add('active'));
   btnClose.forEach(b => b.addEventListener('click', closeModal));
 
-  btnSnap?.addEventListener('click', () => {
+  btnSnap?.addEventListener('click', async () => {
     previewBox.innerHTML = `
       <div style="text-align: center; color: #ffffff;">
         <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.8rem; color: var(--color-ai); margin-bottom: 0.5rem;"></i>
         <h4 style="font-size: 0.95rem;">Escaneando compra con Gemini 1.5 Flash Vision...</h4>
-        <p style="font-size: 0.75rem; color: #94a3b8;">Separando alimentos culinarios de otros productos</p>
+        <p style="font-size: 0.75rem; color: #94a3b8;">Comprimiendo imagen en cliente y separando alimentos</p>
       </div>
     `;
 
-    setTimeout(() => {
-      // Detección simulada en la imagen
+    try {
+      const detectedItems = await dataService.processVisionScan(null, 'countertop_bulk');
       previewBox.innerHTML = `
         <div class="camera-grid-overlay"><div></div><div></div><div></div><div></div></div>
         <div class="detection-box" style="top: 20%; left: 15%;"><i class="fa-solid fa-tag"></i> Aguacates (x2)</div>
@@ -59,28 +60,22 @@ function bindPurchasePhotoEvents() {
         <div class="detection-box" style="top: 55%; left: 65%; border-color:#f59e0b;"><i class="fa-solid fa-tag"></i> Plátanos</div>
       `;
 
-      const detected = [
-        { name: 'Aguacates maduros (pack 2)', category: 'fruits' },
-        { name: 'Leche entera fresca', category: 'dairy' },
-        { name: 'Pechuga de pollo fileteada', category: 'meat' },
-        { name: 'Plátanos de Canarias', category: 'fruits' },
-        { name: 'Mantequilla con sal', category: 'dairy' }
-      ];
-
-      checklist.innerHTML = detected.map((item, idx) => `
+      checklist.innerHTML = detectedItems.map((item, idx) => `
         <label class="card" style="padding: 0.5rem 0.75rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
           <div style="display: flex; align-items: center; gap: 0.6rem;">
             <input type="checkbox" checked data-idx="${idx}" data-name="${item.name}" style="width: 17px; height: 17px; accent-color: var(--color-culinary); cursor: pointer;">
             <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">${item.name}</span>
           </div>
-          <span class="pill pill-culinary" style="font-size: 0.7rem;">Culinario</span>
+          <span class="pill pill-culinary" style="font-size: 0.7rem;"><i class="fa-solid fa-leaf"></i> Culinario</span>
         </label>
       `).join('');
 
       detectedContainer.style.display = 'block';
       btnSave.style.display = 'inline-flex';
-      notifications.info('¡Compra escaneada! 5 alimentos detectados para revisar.');
-    }, 800);
+      notifications.info(`¡Compra escaneada! ${detectedItems.length} alimentos detectados para revisar.`);
+    } catch (err) {
+      notifications.error('Error al procesar el escaneo de compra');
+    }
   });
 
   btnSave?.addEventListener('click', () => {
@@ -128,7 +123,7 @@ function bindAuditPhotoEvents() {
   btnOpen?.addEventListener('click', () => modal.classList.add('active'));
   btnClose.forEach(b => b.addEventListener('click', closeModal));
 
-  btnSnap?.addEventListener('click', () => {
+  btnSnap?.addEventListener('click', async () => {
     const zoneName = zoneSelect.options[zoneSelect.selectedIndex].text;
 
     previewBox.innerHTML = `
@@ -139,7 +134,9 @@ function bindAuditPhotoEvents() {
       </div>
     `;
 
-    setTimeout(() => {
+    try {
+      const recon = await dataService.processVisionScan(null, 'zone_audit', zoneName);
+
       previewBox.innerHTML = `
         <div class="camera-grid-overlay"><div></div><div></div><div></div><div></div></div>
         <div class="detection-box" style="top: 30%; left: 20%;"><i class="fa-solid fa-check"></i> Huevos camperos</div>
@@ -151,32 +148,34 @@ function bindAuditPhotoEvents() {
       document.getElementById('audit-col-new').innerHTML = `
         <div class="recon-item-card" style="font-size:0.75rem;">
           <span>Queso gouda cuña</span>
-          <span class="pill pill-ai">+ Añadir</span>
+          <span class="pill pill-ai"><i class="fa-solid fa-plus"></i> Añadir</span>
         </div>
       `;
 
       document.getElementById('audit-col-confirmed').innerHTML = `
         <div class="recon-item-card" style="font-size:0.75rem;">
           <span>Huevos camperos</span>
-          <span class="pill pill-culinary">Confirmado</span>
+          <span class="pill pill-culinary"><i class="fa-solid fa-check"></i> Confirmado</span>
         </div>
         <div class="recon-item-card" style="font-size:0.75rem;">
           <span>Aceite de oliva</span>
-          <span class="pill pill-culinary">Confirmado</span>
+          <span class="pill pill-culinary"><i class="fa-solid fa-check"></i> Confirmado</span>
         </div>
       `;
 
       document.getElementById('audit-col-missing').innerHTML = `
         <div class="recon-item-card" style="font-size:0.75rem; border-left:3px solid var(--color-warning);">
           <span>Espinacas frescas</span>
-          <span class="pill pill-warning">Gastado</span>
+          <span class="pill pill-warning"><i class="fa-solid fa-triangle-exclamation"></i> Gastado</span>
         </div>
       `;
 
       resultsContainer.style.display = 'block';
       btnApply.style.display = 'inline-flex';
       notifications.info(`¡Auditoría de ${zoneName} completada!`);
-    }, 800);
+    } catch (err) {
+      notifications.error('Error al procesar la auditoría visual');
+    }
   });
 
   btnApply?.addEventListener('click', () => {

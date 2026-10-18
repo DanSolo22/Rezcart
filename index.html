@@ -26,22 +26,31 @@
         </div>
       </a>
 
-      <!-- Pestañas de Navegación de Escritorio -->
-      <nav class="tabs-navigation">
-        <button class="tab-btn active" data-view="carts">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span>Carritos</span>
-        </button>
-        <button class="tab-btn" data-view="pantry">
-          <i class="fa-solid fa-box-archive"></i>
-          <span>Despensa</span>
-          <span class="tab-badge" id="pantry-total-count">8</span>
-        </button>
-        <button class="tab-btn" data-view="recipes">
-          <i class="fa-solid fa-utensils"></i>
-          <span>Recetas</span>
-        </button>
-      </nav>
+      <!-- Grupo Derecho: Indicador de Modo Dual Offline + Pestañas de Navegación -->
+      <div class="header-right-group">
+        <div class="sync-status-indicator" id="sync-status-indicator" title="Modo Dual: IndexedDB local (0ms en supermercado) + Sincronización en la nube">
+          <span class="sync-badge-pill synced" id="sync-badge-pill">
+            <i class="fa-solid fa-cloud-arrow-up" id="sync-badge-icon"></i>
+            <span id="sync-badge-text">IndexedDB Activo</span>
+          </span>
+        </div>
+
+        <nav class="tabs-navigation">
+          <button class="tab-btn active" data-view="carts">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Carritos</span>
+          </button>
+          <button class="tab-btn" data-view="pantry">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Despensa</span>
+            <span class="tab-badge" id="pantry-total-count">8</span>
+          </button>
+          <button class="tab-btn" data-view="recipes">
+            <i class="fa-solid fa-utensils"></i>
+            <span>Recetas</span>
+          </button>
+        </nav>
+      </div>
     </div>
   </header>
 

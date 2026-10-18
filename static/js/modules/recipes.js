@@ -3,6 +3,7 @@
 
 import { state } from '../core/state.js';
 import { notifications } from '../core/ui_notifications.js';
+import { dataService } from '../core/data_service.js';
 
 let recipeFilter = 'all'; // 'all', 'ready', 'almost'
 
@@ -317,47 +318,57 @@ export function openChefAiModal() {
   const closeModal = () => modal.classList.remove('active');
   btnClose.onclick = closeModal;
 
-  btnGenerate.onclick = () => {
+  btnGenerate.onclick = async () => {
     btnGenerate.disabled = true;
-    btnGenerate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Aplicando perfil dietético...`;
+    btnGenerate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Invocando Chef IA...`;
 
-    setTimeout(() => {
-      btnGenerate.disabled = false;
-      btnGenerate.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Proponer Nueva Receta`;
-
+    try {
       const dietInfo = state.getDietaryInfo();
-      const isVeg = dietInfo.base === 'vegetarian' || dietInfo.base === 'vegan';
-      const isCarn = dietInfo.base === 'carnivore';
+      const proposal = await dataService.queryChefAI(state.pantry, state.dietaryProfile);
 
-      let dishTitle = 'Salteado "Rescate de Despensa"';
-      let dishDesc = '';
-      if (isVeg) {
-        dishTitle = 'Salteado Verde de Espinacas con Parmesano Curado';
-        dishDesc = `Adaptado estrictamente a tu dieta <strong>${dietInfo.baseLabel}</strong>: se omiten carnes y se potencian tus espinacas frescas con ajo morado y aceite de oliva virgen.`;
-      } else if (isCarn) {
-        dishTitle = 'Pechuga a la Plancha al Ajo Crujiente';
-        dishDesc = `Alineado con tu dieta <strong>${dietInfo.baseLabel}</strong>: alta proteína con pollo fresco, aromatizado en aceite y sal, omitiendo carbohidratos.`;
-      } else {
-        dishTitle = 'Salteado Rápido Pollo y Espinacas';
-        dishDesc = `Hemos aprovechado tu <strong>pechuga de pollo</strong> y las <strong>espinacas</strong> combinándolas con tus <strong>huevos camperos</strong> y un toque de parmesano crujiente.`;
-      }
+      btnGenerate.disabled = false;
+      btnGenerate.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Proponer Otra Receta`;
 
       resultsDiv.innerHTML = `
-        <div class="card" style="border: 1px solid var(--border-ai); background: #fafafa;">
+        <div class="card" style="border: 1px solid var(--border-ai); background: #fafafa; padding: 1rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <h4 style="color:var(--color-ai-dark); font-size:1.05rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> ${dishTitle}</h4>
-            <span class="pill pill-culinary">18 min</span>
+            <h4 style="color:var(--color-ai-dark); font-size:1.05rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> ${proposal.title}</h4>
+            <span class="pill pill-culinary">${proposal.time}</span>
           </div>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem;">
-            ${dishDesc}
+            ${proposal.description}
           </p>
-          <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+          <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); margin-bottom: 0.8rem;">
             <strong>Directiva Dietética Activa:</strong> ${dietInfo.baseLabel} (${dietInfo.restrictionsLabels.join(', ') || 'Sin restricciones'}). Chef IA ha garantizado la compatibilidad total.
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary btn-sm" id="btn-save-chef-ai-recipe" style="flex: 1;">
+              <i class="fa-solid fa-bookmark"></i> Guardar en mi Recetario
+            </button>
           </div>
         </div>
       `;
+
+      document.getElementById('btn-save-chef-ai-recipe')?.addEventListener('click', () => {
+        state.saveCustomRecipe({
+          title: proposal.title,
+          time: proposal.time,
+          difficulty: 'Fácil',
+          bases: [state.dietaryProfile.base],
+          allergens: [],
+          description: proposal.description,
+          ingredients: proposal.ingredients
+        });
+        notifications.success(`¡"${proposal.title}" guardada en tu recetario permanente!`);
+        closeModal();
+      });
+
       notifications.info(`Chef IA ha ideado un plato para tu dieta ${dietInfo.baseLabel}`);
-    }, 700);
+    } catch (err) {
+      btnGenerate.disabled = false;
+      btnGenerate.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Proponer Nueva Receta`;
+      notifications.error('Error al generar la propuesta del Chef IA');
+    }
   };
 }
 
