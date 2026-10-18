@@ -194,6 +194,13 @@ function bindGeminiConfigEvents() {
     }
     dataService.setGeminiApiKey(key);
     updateGeminiStatusBadge();
+
+    // Actualizar avisos en modales de fotos si estaban visibles
+    const purchaseAlert = document.getElementById('purchase-key-alert');
+    const auditAlert = document.getElementById('audit-key-alert');
+    if (purchaseAlert) purchaseAlert.style.display = 'none';
+    if (auditAlert) auditAlert.style.display = 'none';
+
     modal.classList.remove('active');
     notifications.success('¡Clave de Google Gemini guardada! Visión real activada.');
   });
@@ -221,6 +228,9 @@ function bindPurchasePhotoEvents() {
   const videoEl = document.getElementById('purchase-video');
   const imgPreviewEl = document.getElementById('purchase-img-preview');
   const placeholderEl = document.getElementById('purchase-placeholder');
+  const processingOverlay = document.getElementById('purchase-processing-overlay');
+  const keyAlert = document.getElementById('purchase-key-alert');
+  const btnConfigureKey = document.getElementById('btn-purchase-configure-key');
   const detectedContainer = document.getElementById('purchase-detected-container');
   const checklist = document.getElementById('purchase-detected-checklist');
   const btnSave = document.getElementById('btn-confirm-save-purchase-photo');
@@ -231,6 +241,7 @@ function bindPurchasePhotoEvents() {
   const closeModal = () => {
     modal.classList.remove('active');
     stopLiveCamera(videoEl, placeholderEl, imgPreviewEl);
+    if (processingOverlay) processingOverlay.style.display = 'none';
     detectedContainer.style.display = 'none';
     btnSave.style.display = 'none';
     purchaseCapturedBlob = null;
@@ -241,10 +252,21 @@ function bindPurchasePhotoEvents() {
   btnOpen?.addEventListener('click', async () => {
     modal.classList.add('active');
     purchaseCapturedBlob = null;
+
+    // Verificar si hay clave de Gemini
+    const hasKey = dataService.hasGeminiApiKey();
+    if (keyAlert) {
+      keyAlert.style.display = hasKey ? 'none' : 'flex';
+    }
+
     const cameraActive = await startLiveCamera(videoEl, placeholderEl, imgPreviewEl);
     if (!cameraActive) {
       notifications.info('Puedes usar tu cámara en vivo o el botón de subir foto para escanear.');
     }
+  });
+
+  btnConfigureKey?.addEventListener('click', () => {
+    openGeminiConfigModal();
   });
 
   btnClose.forEach(b => b.addEventListener('click', closeModal));
@@ -291,26 +313,25 @@ function bindPurchasePhotoEvents() {
   async function executePurchaseScan() {
     // Verificar si hay clave API
     if (!dataService.hasGeminiApiKey()) {
-      notifications.warning('Configura tu clave de Gemini API para activar la detección real.');
+      if (keyAlert) keyAlert.style.display = 'flex';
+      notifications.warning('Introduce tu clave gratuita de Google Gemini para procesar la foto con IA real.');
       openGeminiConfigModal();
-      return;
-    }
-
-    if (!purchaseCapturedBlob && (!videoEl || !videoEl.srcObject)) {
-      notifications.warning('Por favor, enfoca con la cámara o sube una fotografía de tus alimentos.');
       return;
     }
 
     let blobToProcess = purchaseCapturedBlob;
     if (!blobToProcess && videoEl && videoEl.srcObject) {
       blobToProcess = await captureVideoFrame(videoEl);
+      purchaseCapturedBlob = blobToProcess;
     }
 
     if (!blobToProcess) {
-      notifications.warning('No se pudo capturar la imagen. Inténtalo de nuevo o sube una foto.');
+      notifications.warning('Por favor, enfoca tus alimentos o sube una fotografía.');
       return;
     }
 
+    // Mostrar overlay de procesamiento visual e indicador de botón
+    if (processingOverlay) processingOverlay.style.display = 'flex';
     btnSnap.disabled = true;
     btnSnap.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Reconociendo alimentos reales con Gemini...`;
 
@@ -332,8 +353,6 @@ function bindPurchasePhotoEvents() {
         `;
         detectedContainer.style.display = 'block';
         btnSave.style.display = 'none';
-        btnSnap.disabled = false;
-        btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Disparar de Nuevo`;
         notifications.info('Análisis completado: no se identificaron alimentos en la imagen.');
         return;
       }
@@ -377,20 +396,21 @@ function bindPurchasePhotoEvents() {
 
       detectedContainer.style.display = 'block';
       btnSave.style.display = 'inline-flex';
-      btnSnap.disabled = false;
-      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Disparar de Nuevo`;
       notifications.success(`¡Gemini detectó ${detectedItems.length} alimentos reales en tu foto!`);
     } catch (err) {
       console.error('[Rezcart Vision] Error durante el escaneo:', err);
-      btnSnap.disabled = false;
-      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Disparar y Detectar`;
 
       if (err.code === 'NO_API_KEY') {
+        if (keyAlert) keyAlert.style.display = 'flex';
         notifications.warning('Configura tu clave de Gemini API para activar la visión real.');
         openGeminiConfigModal();
       } else {
-        notifications.error('Error de IA Gemini: ' + (err.message || 'Fallo de red o cuota excedida'));
+        notifications.error('Error de IA Gemini: ' + (err.message || 'Fallo de conexión o cuota'));
       }
+    } finally {
+      if (processingOverlay) processingOverlay.style.display = 'none';
+      btnSnap.disabled = false;
+      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Disparar de Nuevo`;
     }
   }
 
@@ -427,6 +447,9 @@ function bindAuditPhotoEvents() {
   const videoEl = document.getElementById('audit-video');
   const imgPreviewEl = document.getElementById('audit-img-preview');
   const placeholderEl = document.getElementById('audit-placeholder');
+  const processingOverlay = document.getElementById('audit-processing-overlay');
+  const keyAlert = document.getElementById('audit-key-alert');
+  const btnConfigureKey = document.getElementById('btn-audit-configure-key');
   const resultsContainer = document.getElementById('audit-results-container');
   const btnApply = document.getElementById('btn-apply-audit-recon');
   const zoneSelect = document.getElementById('audit-zone-select');
@@ -437,6 +460,7 @@ function bindAuditPhotoEvents() {
   const closeModal = () => {
     modal.classList.remove('active');
     stopLiveCamera(videoEl, placeholderEl, imgPreviewEl);
+    if (processingOverlay) processingOverlay.style.display = 'none';
     resultsContainer.style.display = 'none';
     btnApply.style.display = 'none';
     auditCapturedBlob = null;
@@ -448,10 +472,20 @@ function bindAuditPhotoEvents() {
   btnOpen?.addEventListener('click', async () => {
     modal.classList.add('active');
     auditCapturedBlob = null;
+
+    const hasKey = dataService.hasGeminiApiKey();
+    if (keyAlert) {
+      keyAlert.style.display = hasKey ? 'none' : 'flex';
+    }
+
     const cameraActive = await startLiveCamera(videoEl, placeholderEl, imgPreviewEl);
     if (!cameraActive) {
       notifications.info('Puedes usar tu cámara en vivo o el botón de subir foto para auditar.');
     }
+  });
+
+  btnConfigureKey?.addEventListener('click', () => {
+    openGeminiConfigModal();
   });
 
   btnClose.forEach(b => b.addEventListener('click', closeModal));
@@ -493,6 +527,7 @@ function bindAuditPhotoEvents() {
 
   async function executeAuditScan() {
     if (!dataService.hasGeminiApiKey()) {
+      if (keyAlert) keyAlert.style.display = 'flex';
       notifications.warning('Configura tu clave de Gemini API para activar la auditoría real.');
       openGeminiConfigModal();
       return;
@@ -503,6 +538,7 @@ function bindAuditPhotoEvents() {
     let blobToProcess = auditCapturedBlob;
     if (!blobToProcess && videoEl && videoEl.srcObject) {
       blobToProcess = await captureVideoFrame(videoEl);
+      auditCapturedBlob = blobToProcess;
     }
 
     if (!blobToProcess) {
@@ -510,6 +546,7 @@ function bindAuditPhotoEvents() {
       return;
     }
 
+    if (processingOverlay) processingOverlay.style.display = 'flex';
     btnSnap.disabled = true;
     btnSnap.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Auditando baldas de ${zoneName} con Gemini...`;
 
@@ -589,20 +626,21 @@ function bindAuditPhotoEvents() {
 
       resultsContainer.style.display = 'block';
       btnApply.style.display = 'inline-flex';
-      btnSnap.disabled = false;
-      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Volver a Auditar`;
       notifications.success(`¡Auditoría de ${zoneName} con Gemini completada!`);
     } catch (err) {
       console.error('[Rezcart Audit] Error en auditoría:', err);
-      btnSnap.disabled = false;
-      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Disparar y Auditar`;
 
       if (err.code === 'NO_API_KEY') {
+        if (keyAlert) keyAlert.style.display = 'flex';
         notifications.warning('Configura tu clave de Gemini API para activar la auditoría real.');
         openGeminiConfigModal();
       } else {
         notifications.error('Error en auditoría IA: ' + (err.message || 'Fallo de red'));
       }
+    } finally {
+      if (processingOverlay) processingOverlay.style.display = 'none';
+      btnSnap.disabled = false;
+      btnSnap.innerHTML = `<i class="fa-solid fa-camera"></i> Volver a Auditar`;
     }
   }
 

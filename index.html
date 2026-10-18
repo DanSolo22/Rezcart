@@ -449,12 +449,22 @@
         </button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 0.85rem; color: var(--text-muted);">
-          Haz una foto panorámica a los alimentos que acabas de traer del supermercado sobre la encimera o la mesa para incorporarlos a la despensa sin esfuerzo.
-        </p>
+        <div id="purchase-key-alert" style="display: none; background: var(--bg-warning-pill); border: 1px solid var(--border-warning); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; font-size: 0.8rem; color: var(--color-warning-dark); align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Sin clave Gemini: la detección real requiere tu API Key gratuita.</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-purchase-configure-key" type="button" style="font-size: 0.72rem; padding: 0.2rem 0.6rem;">Configurar</button>
+        </div>
+
         <div class="camera-preview-box" id="purchase-camera-preview" style="height: 220px; position: relative;">
           <video id="purchase-video" autoplay playsinline muted style="display: none;"></video>
           <img id="purchase-img-preview" style="display: none;" alt="Foto capturada">
+          <div class="camera-processing-overlay" id="purchase-processing-overlay" style="display: none;">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <strong>Analizando alimentos con Google Gemini...</strong>
+            <span>Identificando frutas, verduras, carnes y lácteos reales</span>
+          </div>
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>
@@ -513,9 +523,22 @@
           </select>
         </div>
 
+        <div id="audit-key-alert" style="display: none; background: var(--bg-warning-pill); border: 1px solid var(--border-warning); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; font-size: 0.8rem; color: var(--color-warning-dark); align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Sin clave Gemini: la auditoría requiere tu API Key gratuita.</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-audit-configure-key" type="button" style="font-size: 0.72rem; padding: 0.2rem 0.6rem;">Configurar</button>
+        </div>
+
         <div class="camera-preview-box" id="audit-camera-preview" style="height: 220px; position: relative;">
           <video id="audit-video" autoplay playsinline muted style="display: none;"></video>
           <img id="audit-img-preview" style="display: none;" alt="Foto de auditoría">
+          <div class="camera-processing-overlay" id="audit-processing-overlay" style="display: none;">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <strong>Auditando existencias con Google Gemini...</strong>
+            <span>Comparando baldas con tu despensa</span>
+          </div>
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>

@@ -58,6 +58,10 @@ class NotificationManager {
   info(message, icon = 'fa-sparkles') {
     this.show({ message, type: 'info', icon });
   }
+
+  error(message, icon = 'fa-circle-xmark') {
+    this.show({ message, type: 'danger', icon });
+  }
 }
 
 export const notifications = new NotificationManager();
