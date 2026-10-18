@@ -31,6 +31,11 @@
 
       <!-- Grupo Derecho: Indicador de Modo Dual Offline + Pestañas de Navegación -->
       <div class="header-right-group">
+        <button class="btn btn-secondary btn-sm" id="btn-open-gemini-config" title="Configurar IA Real (Google Gemini)">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-ai);"></i>
+          <span id="gemini-status-text">IA Real</span>
+        </button>
+
         <div class="sync-status-indicator" id="sync-status-indicator" title="Modo Dual: IndexedDB local (0ms en supermercado) + Sincronización en la nube">
           <span class="sync-badge-pill synced" id="sync-badge-pill">
             <span id="sync-badge-icon-wrap"><i class="fa-solid fa-cloud"></i></span>
@@ -449,6 +454,7 @@
         </p>
         <div class="camera-preview-box" id="purchase-camera-preview" style="height: 220px; position: relative;">
           <video id="purchase-video" autoplay playsinline muted style="display: none;"></video>
+          <img id="purchase-img-preview" style="display: none;" alt="Foto capturada">
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>
@@ -458,10 +464,16 @@
           </div>
         </div>
 
-        <button class="btn btn-ai" id="btn-snap-purchase-photo" style="width: 100%;">
-          <i class="fa-solid fa-camera"></i>
-          <span>Disparar y Detectar Alimentos</span>
-        </button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-ai" id="btn-snap-purchase-photo" style="flex: 1;">
+            <i class="fa-solid fa-camera"></i>
+            <span>Disparar y Detectar</span>
+          </button>
+          <button class="btn btn-secondary btn-icon" id="btn-upload-purchase-trigger" type="button" title="Subir foto desde galería o cámara nativa">
+            <i class="fa-solid fa-upload"></i>
+          </button>
+          <input type="file" id="purchase-file-input" accept="image/*" capture="environment" style="display: none;">
+        </div>
 
         <div id="purchase-detected-container" style="display: none; margin-top: 0.75rem;">
           <strong style="font-size: 0.85rem; color: var(--text-main); display: block; margin-bottom: 0.5rem;">
@@ -503,6 +515,7 @@
 
         <div class="camera-preview-box" id="audit-camera-preview" style="height: 220px; position: relative;">
           <video id="audit-video" autoplay playsinline muted style="display: none;"></video>
+          <img id="audit-img-preview" style="display: none;" alt="Foto de auditoría">
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>
@@ -512,10 +525,16 @@
           </div>
         </div>
 
-        <button class="btn btn-ai" id="btn-snap-audit-photo" style="width: 100%;">
-          <i class="fa-solid fa-camera"></i>
-          <span>Disparar y Auditar Existencias</span>
-        </button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-ai" id="btn-snap-audit-photo" style="flex: 1;">
+            <i class="fa-solid fa-camera"></i>
+            <span>Disparar y Auditar</span>
+          </button>
+          <button class="btn btn-secondary btn-icon" id="btn-upload-audit-trigger" type="button" title="Subir foto desde galería o cámara nativa">
+            <i class="fa-solid fa-upload"></i>
+          </button>
+          <input type="file" id="audit-file-input" accept="image/*" capture="environment" style="display: none;">
+        </div>
 
         <div id="audit-results-container" style="display: none; margin-top: 1rem;">
           <div class="reconciliation-grid" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
@@ -658,6 +677,50 @@
         <button class="btn btn-primary" id="btn-save-diet-profile">
           <i class="fa-solid fa-check"></i>
           <span>Guardar y Aplicar a Recetas</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Modal Configuración Google Gemini AI Real -->
+  <div class="modal-backdrop" id="modal-gemini-config">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sparkles" style="color: var(--color-ai);"></i> Reconocimiento Real con Google Gemini</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+          Para que Rezcart detecte <strong>alimentos reales</strong> a través de la cámara de tu móvil o fotos, se conecta a la API gratuita de <strong>Google Gemini 1.5 Flash Vision</strong>.
+        </p>
+
+        <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem; margin: 1rem 0;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--color-culinary); display: block; margin-bottom: 0.35rem;">
+            <i class="fa-solid fa-key"></i> Clave API de Google AI Studio (Gratis)
+          </label>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <input type="password" id="input-gemini-api-key" placeholder="AIzaSy..." style="flex: 1; padding: 0.65rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: monospace; font-size: 0.9rem; background: var(--bg-card); color: var(--text-main);">
+            <button class="btn btn-secondary btn-icon" id="btn-toggle-gemini-key-visibility" type="button" title="Mostrar/Ocultar clave">
+              <i class="fa-solid fa-eye" id="icon-toggle-gemini-key"></i>
+            </button>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">
+            Puedes obtener tu clave gratuita al instante en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color: var(--color-culinary); font-weight: 600; text-decoration: underline;">Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square"></i></a>. Tu clave se almacena exclusivamente en tu dispositivo (LocalStorage).
+          </p>
+        </div>
+
+        <div id="gemini-key-status-msg" style="display: none; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 0.5rem;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-clear-gemini-key" type="button" style="margin-right: auto; color: var(--color-danger);">
+          <i class="fa-solid fa-trash"></i> Borrar Clave
+        </button>
+        <button class="btn btn-secondary" data-action="close">Cerrar</button>
+        <button class="btn btn-primary" id="btn-save-gemini-key">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Guardar Clave</span>
         </button>
       </div>
     </div>
