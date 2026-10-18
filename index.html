@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rezcart — Del Carrito a la Despensa y tu Cocina</title>
+  
+  <!-- FontAwesome 6 Offline Local -->
+  <script src="static/js/fontawesome.min.js"></script>
+  
+  <!-- Hoja de Estilos Oficial Layered Elevation -->
+  <link rel="stylesheet" href="static/css/main.css">
+</head>
+<body>
+
+  <!-- Barra Superior / Header -->
+  <header class="header-bar">
+    <div class="header-inner">
+      <a href="#" class="brand-wrapper">
+        <div class="brand-icon">
+          <i class="fa-solid fa-basket-shopping"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Rezcart</h1>
+          <span class="tagline">Carrito · Despensa · Recetas</span>
+        </div>
+      </a>
+
+      <!-- Pestañas de Navegación de Escritorio -->
+      <nav class="tabs-navigation">
+        <button class="tab-btn active" data-view="carts">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Carritos</span>
+        </button>
+        <button class="tab-btn" data-view="pantry">
+          <i class="fa-solid fa-box-archive"></i>
+          <span>Despensa</span>
+          <span class="tab-badge" id="pantry-total-count">8</span>
+        </button>
+        <button class="tab-btn" data-view="recipes">
+          <i class="fa-solid fa-utensils"></i>
+          <span>Recetas</span>
+        </button>
+        <button class="tab-btn" data-view="household">
+          <i class="fa-solid fa-users"></i>
+          <span>Dietas & Hogar</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Vistas -->
+  <main class="app-container">
+
+    <!-- ======================================================================
+         VISTA 1: CARRITOS DE COMPRA (CARTS)
+         ====================================================================== -->
+    <section class="view-section active" id="view-carts">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <i class="fa-solid fa-cart-shopping" style="color: var(--color-culinary);"></i>
+            Tus Listas de la Compra
+          </h2>
+          <p>Tacha mientras compras. Los alimentos culinarios se transferirán automáticamente a tu despensa.</p>
+        </div>
+      </div>
+
+      <!-- Selector de Carritos Múltiples -->
+      <div class="cart-selector-bar" id="cart-chips-container">
+        <!-- Renderizado dinámicamente por carts.js -->
+      </div>
+
+      <!-- Entrada Rápida de Artículos con Pegar Lista integrado -->
+      <div class="card quick-input-card">
+        <i class="fa-solid fa-plus" style="color: var(--color-culinary); font-size: 1.1rem;"></i>
+        <input type="text" id="input-quick-add" placeholder="Escribe un producto (ej. 'Pechuga de pollo', 'Lejía', 'Aguacates')...">
+        <button class="btn btn-primary btn-sm" id="btn-quick-add">
+          <span>Añadir</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btn-open-paste-modal" title="Pegar lista de WhatsApp o notas">
+          <i class="fa-solid fa-paste"></i>
+          <span>Pegar Lista</span>
+        </button>
+      </div>
+
+      <!-- Lista Interactiva de Artículos -->
+      <div class="items-list" id="cart-items-container">
+        <!-- Renderizado dinámicamente por carts.js -->
+      </div>
+
+      <!-- Banner de Finalizar Compra Guiado -->
+      <div class="checkout-banner" id="checkout-banner">
+        <div class="checkout-stats">
+          <div class="stat-item">
+            <span class="stat-label">Comprados</span>
+            <span class="stat-value" id="stat-total-bought">0 / 0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Culinarios para Despensa</span>
+            <span class="stat-value" id="stat-culinary-count" style="color: var(--color-culinary);">0</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-open-checkout">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Finalizar Compra y Traspasar</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VISTA 2: DESPENSA INTELIGENTE (PANTRY)
+         ====================================================================== -->
+    <section class="view-section" id="view-pantry">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <i class="fa-solid fa-box-archive" style="color: var(--color-culinary);"></i>
+            Tu Despensa y Existencias
+          </h2>
+          <p>Control sin fechas manuales: frescura implícita automática y entrada por fotos de alimentos.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ai btn-sm" id="btn-open-photo-purchase">
+            <i class="fa-solid fa-camera"></i>
+            <span>📸 Foto Nueva Compra</span>
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-open-photo-audit">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            <span>🔍 Auditar Zona</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Widget Check-in Rápido de 15 Segundos -->
+      <div id="pantry-checkin-container">
+        <!-- Aparece cuando hay alimentos con alerta ámbar -->
+      </div>
+
+      <!-- Filtros por Categoría de Alimento -->
+      <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.25rem;" id="pantry-filter-pills">
+        <!-- Renderizado por pantry.js -->
+      </div>
+
+      <!-- Grid de Tarjetas de Alimentos -->
+      <div class="pantry-grid" id="pantry-items-grid">
+        <!-- Renderizado por pantry.js -->
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VISTA 4: RECETAS Y CHEF IA (RECIPES)
+         ====================================================================== -->
+    <section class="view-section" id="view-recipes">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <i class="fa-solid fa-utensils" style="color: var(--color-culinary);"></i>
+            ¿Qué Cocinamos Hoy?
+          </h2>
+          <p>Recetas calculadas al vuelo contra los ingredientes reales que tienes en tu despensa.</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-ai btn-sm" id="btn-open-chef-ai-modal">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>✨ Asistente Chef IA</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de Recetas (100% vs Casi listas) -->
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;" id="recipe-filter-buttons">
+        <!-- Renderizado por recipes.js -->
+      </div>
+
+      <!-- Grid de Recetas -->
+      <div class="recipes-grid" id="recipes-grid-container">
+        <!-- Renderizado por recipes.js -->
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VISTA 5: DIETAS Y HOGAR (HOUSEHOLD)
+         ====================================================================== -->
+    <section class="view-section" id="view-household">
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h2>
+            <i class="fa-solid fa-users" style="color: var(--color-culinary);"></i>
+            Perfiles Dietéticos y Hogar
+          </h2>
+          <p>Configura las restricciones alimentarias para que las recetas y sustituciones se adapten a tu familia.</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;" id="dietary-pills-container">
+        <!-- Renderizado por household.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       BARRA DE NAVEGACIÓN INFERIOR (MÓVIL)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-btn active" data-view="carts">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Carritos</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="pantry">
+      <i class="fa-solid fa-box-archive"></i>
+      <span>Despensa</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="recipes">
+      <i class="fa-solid fa-utensils"></i>
+      <span>Recetas</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="household">
+      <i class="fa-solid fa-users"></i>
+      <span>Hogar</span>
+    </button>
+  </nav>
+
+  <!-- ==========================================================================
+       MODALES DEL SISTEMA
+       ========================================================================== -->
+
+  <!-- 1. Modal Nuevo Carrito -->
+  <div class="modal-backdrop" id="modal-new-cart">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-cart-plus"></i> Crear Nuevo Carrito</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+          <label style="font-size: 0.85rem; font-weight: 600;">Nombre del Carrito:</label>
+          <input type="text" id="new-cart-name" placeholder="Ej: Mercadona Semanal, Leroy Merlin, Droguería" style="padding: 0.65rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.95rem;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+          <label style="font-size: 0.85rem; font-weight: 600;">Tipo de Carrito:</label>
+          <select id="new-cart-type" style="padding: 0.65rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.95rem; background: #ffffff;">
+            <option value="mixed">Mixto (Comida + Hogar/Limpieza)</option>
+            <option value="grocery">Solo Supermercado / Comida</option>
+            <option value="non_food">No Alimentario (Bazar, Ferretería, Ropa)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-new-cart">Crear Carrito</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Modal Pegar Lista de WhatsApp -->
+  <div class="modal-backdrop" id="modal-paste-list">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-paste"></i> Pegar Lista de WhatsApp o Notas</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Pega texto libre con guiones, viñetas o saltos de línea. El clasificador inteligente categorizará cada producto automáticamente.
+        </p>
+        <textarea id="paste-text-input" rows="6" placeholder="- 1kg de tomates pera&#10;- Pechuga de pollo&#10;- Detergente lavadora&#10;- Aguacates maduros" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 0.9rem; resize: vertical;"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cancelar</button>
+        <button class="btn btn-primary" id="btn-parse-paste">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Importar y Clasificar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Modal Resumen "Finalizar Compra" (Guided Checkout) -->
+  <div class="modal-backdrop" id="modal-checkout">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-clipboard-check" style="color: var(--color-culinary);"></i> Resumen de Compra Finalizada</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Al confirmar, tus alimentos comprados nutrirán tu despensa y los artículos pendientes seguirán en la lista para el próximo viaje:
+        </p>
+
+        <!-- Bloque 1: Alimentos a Despensa -->
+        <div class="checkout-group-card" style="border-left: 4px solid var(--color-culinary);">
+          <div class="checkout-group-title" style="color: var(--color-culinary-dark);">
+            <span><i class="fa-solid fa-carrot"></i> 1. Alimentos Culinarios Comprados</span>
+            <span class="pill pill-culinary">Van a Despensa</span>
+          </div>
+          <div id="checkout-list-culinary"></div>
+        </div>
+
+        <!-- Bloque 2: No-comida archivada -->
+        <div class="checkout-group-card" style="border-left: 4px solid var(--color-non-food);">
+          <div class="checkout-group-title" style="color: var(--color-non-food-dark);">
+            <span><i class="fa-solid fa-box-archive"></i> 2. No-Alimentarios Comprados</span>
+            <span class="pill pill-non-food">Archivados</span>
+          </div>
+          <div id="checkout-list-nonfood"></div>
+        </div>
+
+        <!-- Bloque 3: Pendientes -->
+        <div class="checkout-group-card" style="border-left: 4px solid var(--border-hover);">
+          <div class="checkout-group-title" style="color: var(--text-muted);">
+            <span><i class="fa-regular fa-clock"></i> 3. No Encontrados / Pendientes</span>
+            <span class="pill pill-secondary">Se Quedan en Lista</span>
+          </div>
+          <div id="checkout-list-pending"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Atrás</button>
+        <button class="btn btn-primary" id="btn-confirm-checkout-transfer">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Confirmar y Traspasar a Despensa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Modal Chef IA Improvisador -->
+  <div class="modal-backdrop" id="modal-chef-ai">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sparkles" style="color: var(--color-ai);"></i> Asistente Chef IA</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          El Chef IA analiza los alimentos que tienes actualmente en tu despensa y tus preferencias dietéticas para inventar un plato delicioso minimizando desperdicios.
+        </p>
+        <button class="btn btn-ai" id="btn-generate-ai-recipe" style="width: 100%;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Proponer Receta Creativa con lo que Tengo</span>
+        </button>
+        <div id="chef-ai-results" style="margin-top: 1rem;">
+          <!-- Respuesta generada -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Modal Foto Nueva Compra (Encimera / Mesa) -->
+  <div class="modal-backdrop" id="modal-photo-purchase">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-camera" style="color: var(--color-ai);"></i> Foto Nueva Compra (Encimera / Mesa)</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Haz una foto panorámica a los alimentos que acabas de traer del supermercado sobre la encimera o la mesa para incorporarlos a la despensa sin esfuerzo.
+        </p>
+        <div class="camera-preview-box" id="purchase-camera-preview" style="height: 180px;">
+          <div class="camera-grid-overlay">
+            <div></div><div></div><div></div><div></div>
+          </div>
+          <div style="text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-camera" style="font-size: 2.2rem; margin-bottom: 0.4rem; color: #475569;"></i>
+            <p style="font-size: 0.8rem;">Enfoca tu compra desembalada sobre la mesa</p>
+          </div>
+        </div>
+
+        <button class="btn btn-ai" id="btn-snap-purchase-photo" style="width: 100%;">
+          <i class="fa-solid fa-camera"></i>
+          <span>📸 Disparar y Detectar Alimentos</span>
+        </button>
+
+        <div id="purchase-detected-container" style="display: none; margin-top: 0.75rem;">
+          <strong style="font-size: 0.85rem; color: var(--text-main); display: block; margin-bottom: 0.5rem;">
+            Alimentos Culinarios Detectados (revisa y confirma):
+          </strong>
+          <div id="purchase-detected-checklist" style="display: flex; flex-direction: column; gap: 0.45rem;">
+            <!-- Rellenado dinámicamente -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cancelar</button>
+        <button class="btn btn-primary" id="btn-confirm-save-purchase-photo" style="display: none;">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Guardar en Despensa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Modal Auditar Zona (Nevera / Despensa / Frutero) -->
+  <div class="modal-backdrop" id="modal-photo-audit">
+    <div class="modal-container" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--color-warning);"></i> Auditar Zona de Alimentos</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.85rem; font-weight: 600; align-self: center;">Zona a auditar:</span>
+          <select id="audit-zone-select" style="padding: 0.45rem 0.75rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.85rem; background: #ffffff;">
+            <option value="fridge">Nevera / Frigorífico</option>
+            <option value="pantry_shelf">Estante Despensa Seca</option>
+            <option value="fruit_bowl">Frutero / Verduras</option>
+          </select>
+        </div>
+
+        <div class="camera-preview-box" id="audit-camera-preview" style="height: 180px;">
+          <div class="camera-grid-overlay">
+            <div></div><div></div><div></div><div></div>
+          </div>
+          <div style="text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-camera" style="font-size: 2.2rem; margin-bottom: 0.4rem; color: #475569;"></i>
+            <p style="font-size: 0.8rem;">Enfoca las baldas de tu zona seleccionada</p>
+          </div>
+        </div>
+
+        <button class="btn btn-ai" id="btn-snap-audit-photo" style="width: 100%;">
+          <i class="fa-solid fa-camera"></i>
+          <span>📸 Disparar y Auditar Existencias</span>
+        </button>
+
+        <div id="audit-results-container" style="display: none; margin-top: 1rem;">
+          <div class="reconciliation-grid" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+            <!-- Columna 1: Nuevos -->
+            <div class="recon-column">
+              <div class="recon-header">
+                <h4 style="font-size:0.8rem; font-weight:700;"><i class="fa-solid fa-sparkles" style="color:var(--color-ai);"></i> Nuevos</h4>
+              </div>
+              <div class="recon-items-list" id="audit-col-new" style="min-height: 80px;"></div>
+            </div>
+
+            <!-- Columna 2: Confirmados -->
+            <div class="recon-column">
+              <div class="recon-header">
+                <h4 style="font-size:0.8rem; font-weight:700;"><i class="fa-solid fa-circle-check" style="color:var(--color-culinary);"></i> Siguen</h4>
+              </div>
+              <div class="recon-items-list" id="audit-col-confirmed" style="min-height: 80px;"></div>
+            </div>
+
+            <!-- Columna 3: Ausentes -->
+            <div class="recon-column">
+              <div class="recon-header">
+                <h4 style="font-size:0.8rem; font-weight:700;"><i class="fa-solid fa-circle-question" style="color:var(--color-warning);"></i> Ausentes</h4>
+              </div>
+              <div class="recon-items-list" id="audit-col-missing" style="min-height: 80px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cerrar</button>
+        <button class="btn btn-primary" id="btn-apply-audit-recon" style="display: none;">
+          <i class="fa-solid fa-check-double"></i>
+          <span>Confirmar y Actualizar Despensa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Principal -->
+  <script type="module" src="static/js/app.js"></script>
+</body>
+</html>
