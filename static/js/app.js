@@ -85,7 +85,7 @@ function updateKitchenVitalityBar() {
   const miniGaugeEl = document.querySelector('.freshness-mini-gauge');
   const dietValEl = document.getElementById('vitality-diet-val');
   const dietSubEl = document.getElementById('vitality-diet-sub');
-  const dietIconEl = document.getElementById('vitality-diet-icon');
+  const dietIconWrap = document.getElementById('vitality-diet-icon-wrap');
 
   if (!freshnessPctEl) return;
 
@@ -144,8 +144,8 @@ function updateKitchenVitalityBar() {
       ? dietInfo.restrictionsLabels.join(', ')
       : 'Sin alérgenos';
   }
-  if (dietIconEl) {
-    dietIconEl.className = `fa-solid ${dietInfo.baseIcon}`;
+  if (dietIconWrap) {
+    dietIconWrap.innerHTML = `<i class="fa-solid ${dietInfo.baseIcon}"></i>`;
   }
 }
 
@@ -167,24 +167,24 @@ function bindVitalityActions() {
 
 function bindSyncStatusIndicator() {
   const badgeEl = document.getElementById('sync-badge-pill');
-  const iconEl = document.getElementById('sync-badge-icon');
+  const iconWrap = document.getElementById('sync-badge-icon-wrap');
   const textEl = document.getElementById('sync-badge-text');
 
-  if (!badgeEl || !iconEl || !textEl) return;
+  if (!badgeEl || !iconWrap || !textEl) return;
 
   function updateBadge(info) {
     badgeEl.className = 'sync-badge-pill';
     if (!info.isOnline) {
       badgeEl.classList.add('offline');
-      iconEl.className = 'fa-solid fa-cloud-arrow-up';
+      iconWrap.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>';
       textEl.textContent = info.outboxCount > 0 ? `Modo Súper (${info.outboxCount} en cola)` : 'Modo Súper Offline';
     } else if (info.outboxCount > 0) {
       badgeEl.classList.add('syncing');
-      iconEl.className = 'fa-solid fa-arrows-rotate fa-spin';
+      iconWrap.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin"></i>';
       textEl.textContent = `Sincronizando (${info.outboxCount})...`;
     } else {
       badgeEl.classList.add('synced');
-      iconEl.className = 'fa-solid fa-cloud';
+      iconWrap.innerHTML = '<i class="fa-solid fa-cloud"></i>';
       textEl.textContent = 'IndexedDB Activo';
     }
   }

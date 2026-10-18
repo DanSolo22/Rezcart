@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rezcart — Del Carrito a la Despensa y tu Cocina</title>
   
+  <!-- Favicon Vectorial Culinario Oficial Atelier Gourmet -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M8 10h16v2.5H8zm2 5h12v2H10zm-2 4.5h16V22H8z' fill='%23ffffff'/%3E%3C/svg%3E">
+  
   <!-- FontAwesome 6 Offline Local -->
   <script src="static/js/fontawesome.min.js"></script>
   
@@ -30,7 +33,7 @@
       <div class="header-right-group">
         <div class="sync-status-indicator" id="sync-status-indicator" title="Modo Dual: IndexedDB local (0ms en supermercado) + Sincronización en la nube">
           <span class="sync-badge-pill synced" id="sync-badge-pill">
-            <i class="fa-solid fa-cloud-arrow-up" id="sync-badge-icon"></i>
+            <span id="sync-badge-icon-wrap"><i class="fa-solid fa-cloud"></i></span>
             <span id="sync-badge-text">IndexedDB Activo</span>
           </span>
         </div>
@@ -112,8 +115,8 @@
 
         <!-- Métrica 4: Perfil Dietético Mandatorio -->
         <div class="vitality-item" id="vitality-diet-chip" style="cursor: pointer;" title="Configurar Perfil Dietético & Directivas Chef IA">
-          <div class="vitality-icon-circle vitality-icon-teal">
-            <i class="fa-solid fa-utensils" id="vitality-diet-icon"></i>
+          <div class="vitality-icon-circle vitality-icon-teal" id="vitality-diet-icon-wrap">
+            <i class="fa-solid fa-utensils"></i>
           </div>
           <div class="vitality-info">
             <span class="vitality-title">Perfil Dietético</span>
