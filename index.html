@@ -41,10 +41,6 @@
           <i class="fa-solid fa-utensils"></i>
           <span>Recetas</span>
         </button>
-        <button class="tab-btn" data-view="household">
-          <i class="fa-solid fa-users"></i>
-          <span>Dietas & Hogar</span>
-        </button>
       </nav>
     </div>
   </header>
@@ -102,6 +98,18 @@
             <span class="vitality-title">Cesta Activa</span>
             <span class="vitality-val" id="vitality-cart-val">Mercadona Semanal</span>
             <span class="vitality-sub" id="vitality-cart-sub">4 productos pendientes</span>
+          </div>
+        </div>
+
+        <!-- Métrica 4: Perfil Dietético Mandatorio -->
+        <div class="vitality-item" id="vitality-diet-chip" style="cursor: pointer;" title="Configurar Perfil Dietético & Directivas Chef IA">
+          <div class="vitality-icon-circle vitality-icon-teal">
+            <i class="fa-solid fa-utensils" id="vitality-diet-icon"></i>
+          </div>
+          <div class="vitality-info">
+            <span class="vitality-title">Perfil Dietético</span>
+            <span class="vitality-val" id="vitality-diet-val">Omnívora</span>
+            <span class="vitality-sub" id="vitality-diet-sub">Sin Lactosa</span>
           </div>
         </div>
       </div>
@@ -222,18 +230,23 @@
     </section>
 
     <!-- ======================================================================
-         VISTA 4: RECETAS Y CHEF IA (RECIPES)
+         VISTA 3: RECETAS Y CHEF IA (RECIPES)
          ====================================================================== -->
     <section class="view-section" id="view-recipes">
       <div class="section-header">
         <div class="section-title-wrap">
           <h2>
             <i class="fa-solid fa-utensils" style="color: var(--color-culinary);"></i>
-            ¿Qué Cocinamos Hoy?
+            Pase de Cocina & Recetario
           </h2>
-          <p>Recetas calculadas al vuelo contra los ingredientes reales que tienes en tu despensa.</p>
+          <p>Platos calculados con tu despensa real y filtrados por tu perfil dietético mandatorio.</p>
         </div>
         <div class="section-actions">
+          <!-- Botón de Perfil Dietético Mandatorio -->
+          <button class="btn btn-secondary btn-sm" id="btn-open-diet-modal" title="Configurar estilo de dieta y alérgenos">
+            <i class="fa-solid fa-sliders" style="color: var(--color-culinary);"></i>
+            <span id="recipe-diet-badge-label">Perfil: Omnívora</span>
+          </button>
           <button class="btn btn-ai btn-sm" id="btn-open-chef-ai-modal">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Asistente Chef IA</span>
@@ -249,25 +262,6 @@
       <!-- Grid de Recetas -->
       <div class="recipes-grid" id="recipes-grid-container">
         <!-- Renderizado por recipes.js -->
-      </div>
-    </section>
-
-    <!-- ======================================================================
-         VISTA 5: DIETAS Y HOGAR (HOUSEHOLD)
-         ====================================================================== -->
-    <section class="view-section" id="view-household">
-      <div class="section-header">
-        <div class="section-title-wrap">
-          <h2>
-            <i class="fa-solid fa-users" style="color: var(--color-culinary);"></i>
-            Perfiles Dietéticos y Hogar
-          </h2>
-          <p>Configura las restricciones alimentarias para que las recetas y sustituciones se adapten a tu familia.</p>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;" id="dietary-pills-container">
-        <!-- Renderizado por household.js -->
       </div>
     </section>
 
@@ -288,10 +282,6 @@
     <button class="mobile-nav-btn" data-view="recipes">
       <i class="fa-solid fa-utensils"></i>
       <span>Recetas</span>
-    </button>
-    <button class="mobile-nav-btn" data-view="household">
-      <i class="fa-solid fa-users"></i>
-      <span>Hogar</span>
     </button>
   </nav>
 
@@ -546,6 +536,114 @@
         <button class="btn btn-primary" id="btn-apply-audit-recon" style="display: none;">
           <i class="fa-solid fa-check-double"></i>
           <span>Confirmar y Actualizar Despensa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Modal Perfil Dietético y Directivas Chef IA -->
+  <div class="modal-backdrop" id="modal-diet-profile">
+    <div class="modal-container" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders" style="color: var(--color-culinary);"></i> Perfil Dietético & Directivas Chef IA</h3>
+        <button class="btn btn-secondary btn-icon" data-action="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Este perfil es <strong>mandatorio</strong>: oculta recetas que violen tu base dietética y ordena a Chef IA adaptar ingredientes con sustituciones para tus restricciones.
+        </p>
+
+        <!-- Bloque 1: Base Dietética Mandatoria (Selección Única) -->
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">
+            1. Base Dietética Principal (Selección única)
+          </label>
+          <div class="diet-base-grid" id="diet-base-selector">
+            <div class="diet-base-card active" data-base="omnivore">
+              <i class="fa-solid fa-utensils"></i>
+              <strong>Omnívora</strong>
+              <span>Come de todo</span>
+            </div>
+            <div class="diet-base-card" data-base="carnivore">
+              <i class="fa-solid fa-drumstick-bite"></i>
+              <strong>Carnívora</strong>
+              <span>Proteínas y grasas</span>
+            </div>
+            <div class="diet-base-card" data-base="vegetarian">
+              <i class="fa-solid fa-leaf"></i>
+              <strong>Vegetariana</strong>
+              <span>Sin carne ni pescado</span>
+            </div>
+            <div class="diet-base-card" data-base="vegan">
+              <i class="fa-solid fa-seedling"></i>
+              <strong>Vegana</strong>
+              <span>100% vegetal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 2: Restricciones y Alérgenos (Selección Múltiple) -->
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">
+            2. Restricciones, Alérgenos & Salud (Selección múltiple)
+          </label>
+          
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Intolerancias & Alergias:</div>
+          <div class="diet-restrictions-grid" style="margin-bottom: 0.75rem;">
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_gluten">
+              <span><i class="fa-solid fa-wheat-awn-circle-exclamation"></i> Sin Gluten</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_lactosa" checked>
+              <span><i class="fa-solid fa-cow"></i> Sin Lactosa</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_frutos_secos">
+              <span><i class="fa-solid fa-ban"></i> Sin Frutos Secos</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_huevo">
+              <span><i class="fa-solid fa-egg"></i> Sin Huevo</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_marisco">
+              <span><i class="fa-solid fa-shrimp"></i> Sin Marisco</span>
+            </label>
+          </div>
+
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Estilo de Vida & Salud:</div>
+          <div class="diet-restrictions-grid">
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="keto">
+              <span><i class="fa-solid fa-fire"></i> Keto / Low Carb</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="sin_azucar">
+              <span><i class="fa-solid fa-cubes-stacked"></i> Sin Azúcar</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="bajo_sal">
+              <span><i class="fa-solid fa-heart-pulse"></i> Bajo en Sal</span>
+            </label>
+            <label class="diet-pill-checkbox">
+              <input type="checkbox" name="diet-restriction" value="bajo_grasa">
+              <span><i class="fa-solid fa-shield-heart"></i> Bajo en Grasa</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-culinary-pill); border: 1px solid var(--border-culinary); border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--color-culinary-dark);">
+          <i class="fa-solid fa-circle-check"></i> <strong>Efecto Inmediato:</strong> El catálogo ocultará automáticamente las recetas que no se adapten a tu base y mostrará recetas con sustituciones de Chef IA para las restricciones marcadas.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-action="close">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-diet-profile">
+          <i class="fa-solid fa-check"></i>
+          <span>Guardar y Aplicar a Recetas</span>
         </button>
       </div>
     </div>

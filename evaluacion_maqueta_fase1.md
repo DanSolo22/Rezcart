@@ -122,10 +122,40 @@ Para trascender las listas y formularios genéricos, Rezcart cuenta ahora con un
 
 ---
 
-## 6. Galería Visual de la Maqueta
+## 6. Perfil Dietético & Directiva Mandatoria para Chef IA y Recetas
 
-* Vista Principal Atelier & Pulso de Cocina: [`assets/screenshots/08_atelier_main_view.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/08_atelier_main_view.png)
+Tras la sesión de refinamiento e interactividad con el usuario, se ha transformado el concepto de "Dietas & Hogar" (que anteriormente era una pestaña genérica aislada) en una **directiva rectora de identidad culinaria y filtro mandatorio** para el catálogo y el Chef IA:
+
+1. **Navegación Esencial en 3 Módulos Culinarios**:
+   - Se eliminó la pestaña huérfana de "Dietas & Hogar" de la navegación global.
+   - La aplicación se enfoca en las 3 fases del ciclo de vida del alimento: **Carritos** (aprovisionamiento), **Despensa** (custodia y frescura) y **Recetas** (creación culinaria).
+
+2. **Arquitectura del Perfil Dietético Dual**:
+   - **Dieta Base (Mandatoria y Excluyente - Selección Única)**:
+     - `Omnívora` (`fa-utensils`), `Carnívora` (`fa-drumstick-bite`), `Vegetariana` (`fa-seedling`), `Vegana` (`fa-leaf`).
+     - **Regla Estricta**: Si se activa *Vegetariana* o *Vegana*, cualquier receta con carnes, aves o pescados desaparece al 100% del catálogo. El Chef IA jamás propondrá ingredientes incompatibles con la base elegida.
+   - **Restricciones y Alérgenos (Adaptación & Sustitución - Selección Múltiple)**:
+     - Alérgenos: *Sin gluten*, *Sin lactosa*, *Sin frutos secos*, *Sin huevo*, *Sin marisco*.
+     - Estilo de Vida: *Keto*, *Sin azúcar añadido*, *Bajo en sal*, *Bajo en grasa*.
+     - **Regla de Adaptación Inteligente**: Si una receta contiene un ingrediente restringido pero admite reemplazo (ej. *pasta de trigo* por *pasta sin gluten de maíz* o *leche de avena* por *lácteos*), la receta **permanece visible** pero muestra una tarjeta destacada con borde índigo: *"Chef IA: Adaptada a tu restricción"*, detallando la alternativa recomendada.
+
+3. **Presencia Visual y Control en Tiempo Real**:
+   - **4º Pilar en el Pulso de Cocina (Kitchen Vitality Strip)**:
+     - Chip interactivo con icono representativo, nombre de la dieta y conteo de restricciones activas (ej. *Vegetariana · 2 restricciones*). Un tap abre el configurador de dieta al instante.
+     - El contador de *"Cocina Hoy"* recalcula dinámicamente solo las recetas cocinables compatibles con la directiva activa.
+   - **Cabecera de Recetas**:
+     - Botón insignia redondeado con el badge de la dieta activa para cambiar de perfil sin salir del recetario.
+   - **Chef IA Contextualizado**:
+     - El motor de sugerencias del Chef IA incorpora la directiva dietética en sus propuestas, ajustando la narrativa y los ingredientes al perfil seleccionado.
+
+---
+
+## 7. Galería Visual de la Maqueta
+
+* Vista Principal Atelier & Pulso de Cocina con Perfil Dietético: [`assets/screenshots/08_atelier_main_view.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/08_atelier_main_view.png)
 * Despensa con Bandeja Prioritaria 48h y Medidores: [`assets/screenshots/09_despensa_bandeja_48h.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/09_despensa_bandeja_48h.png)
+* Filtro Dietético Activo y Sustituciones del Chef IA: [`assets/screenshots/10_perfil_dietetico_recetas.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/10_perfil_dietetico_recetas.png)
+* Propuesta del Chef IA Adaptada a Dieta Vegetariana y Sin Gluten: [`assets/screenshots/11_chef_ai_diet_adaptacion.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/11_chef_ai_diet_adaptacion.png)
 * Carritos con Pegar Lista Integrado: [`assets/screenshots/01_carritos.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/01_carritos.png)
 * Foto Nueva Compra (Encimera) con Checklist: [`assets/screenshots/05_foto_nueva_compra.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/05_foto_nueva_compra.png)
 * Auditoría de Zona (Reconciliación 3 Columnas): [`assets/screenshots/03_foto_nevera.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/03_foto_nevera.png)
@@ -133,8 +163,11 @@ Para trascender las listas y formularios genéricos, Rezcart cuenta ahora con un
 
 ---
 
-## 7. Próximo Paso Metodológico (Fase 2 -> Fase 3)
+## 8. Próximo Paso Metodológico (Fase 2 -> Fase 3)
 
-1. Abre [`http://localhost:8090/`](http://localhost:8090/) en tu navegador y prueba la nueva experiencia.
-2. Comprueba cómo interactúan el Pulso de Cocina, los pellizcos rápidos de compra y la bandeja de consumo prioritario de 48h.
-3. Si el flujo y el diseño te encantan, daremos por cerrada la Fase 2 para redactar los **Contratos de Datos SQL/Supabase definitivos (Fase 3)**.
+1. Abre [`http://localhost:8090/`](http://localhost:8090/) en tu navegador y prueba la experiencia interactiva:
+   - Cambia la dieta base a *Vegetariana* o *Vegana* y observa cómo el catálogo y el Pulso de Cocina se reconfiguran al instante.
+   - Añade restricciones (*Sin gluten*, *Sin lactosa*, *Keto*) y observa las notas de sustitución automáticas del Chef IA en las tarjetas de receta.
+   - Lanza el Chef IA (`¿Qué cocinamos hoy?`) para ver cómo genera propuestas respetando escrupulosamente tu perfil.
+2. Si el flujo y el comportamiento están validados, daremos por concluida la Fase 2 y redactaremos el **Esquema de Base de Datos y Contratos SQL (Fase 3)** en PostgreSQL / Supabase para soportar todo el modelo validado.
+

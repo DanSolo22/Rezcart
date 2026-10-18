@@ -6,16 +6,14 @@ import { calculateFreshness } from './core/formatters.js';
 import { initCartsModule, renderCartChips, renderCartItems } from './modules/carts.js';
 import { initPantryModule, renderPantryItems, renderCheckinWidget } from './modules/pantry.js';
 import { initVisionScannerModule } from './modules/vision_scanner.js';
-import { initRecipesModule, renderRecipes, openChefAiModal } from './modules/recipes.js';
-import { initHouseholdModule, renderDietaryTags } from './modules/household.js';
+import { initRecipesModule, renderRecipes, openChefAiModal, openDietProfileModal } from './modules/recipes.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Inicializar modulos
+  // Inicializar módulos principales (3 vistas clave)
   initCartsModule();
   initPantryModule();
   initVisionScannerModule();
   initRecipesModule();
-  initHouseholdModule();
 
   // Enrutar pestañas
   bindNavigation();
@@ -78,6 +76,9 @@ function updateKitchenVitalityBar() {
   const cartValEl = document.getElementById('vitality-cart-val');
   const cartSubEl = document.getElementById('vitality-cart-sub');
   const miniGaugeEl = document.querySelector('.freshness-mini-gauge');
+  const dietValEl = document.getElementById('vitality-diet-val');
+  const dietSubEl = document.getElementById('vitality-diet-sub');
+  const dietIconEl = document.getElementById('vitality-diet-icon');
 
   if (!freshnessPctEl) return;
 
@@ -105,10 +106,13 @@ function updateKitchenVitalityBar() {
     miniGaugeEl.innerHTML = gaugeSpans;
   }
 
-  // 2. Recetas 100% cocinables al vuelo
+  // 2. Recetas 100% cocinables al vuelo (respetando base dietética)
+  const currentBase = state.dietaryProfile.base;
+  const baseAllowedRecipes = state.recipes.filter(r => !r.bases || r.bases.includes(currentBase));
   const pantryNames = state.pantry.map(p => p.name.toLowerCase());
   let readyRecipes = 0;
-  state.recipes.forEach(r => {
+
+  baseAllowedRecipes.forEach(r => {
     const isAll = r.ingredients.every(ing => {
       const clean = ing.toLowerCase();
       return pantryNames.some(p => p.includes(clean) || clean.includes(p.split(' ')[0]));
@@ -124,6 +128,18 @@ function updateKitchenVitalityBar() {
     const pending = activeCart.items.filter(i => !i.bought).length;
     cartSubEl.textContent = `${pending} productos pendientes`;
   }
+
+  // 4. Perfil Dietético Activo
+  const dietInfo = state.getDietaryInfo();
+  if (dietValEl) dietValEl.textContent = dietInfo.baseLabel;
+  if (dietSubEl) {
+    dietSubEl.textContent = dietInfo.restrictionsLabels.length > 0
+      ? dietInfo.restrictionsLabels.join(', ')
+      : 'Sin alérgenos';
+  }
+  if (dietIconEl) {
+    dietIconEl.className = `fa-solid ${dietInfo.baseIcon}`;
+  }
 }
 
 function bindVitalityActions() {
@@ -133,5 +149,13 @@ function bindVitalityActions() {
       openChefAiModal();
     });
   }
+
+  const dietChip = document.getElementById('vitality-diet-chip');
+  if (dietChip) {
+    dietChip.addEventListener('click', () => {
+      openDietProfileModal();
+    });
+  }
 }
+
 

@@ -57,55 +57,104 @@ class AppState {
       { id: 'pan-8', name: 'Queso parmesano cuña', category: 'dairy', inStock: true, daysAgo: 5 }
     ];
 
-    // Catalogo base de recetas
+    // Catalogo base de recetas enriquecido con metadatos de dieta y compatibilidad
     this.recipes = [
       {
         id: 'rec-1',
         title: 'Pollo al Ajillo Dorado',
         time: '20 min',
         difficulty: 'Fácil',
-        dietary: ['sin_gluten', 'sin_lactosa'],
+        bases: ['omnivore', 'carnivore'], // Incompatible con vegetariano/vegano
+        allergens: [],
+        keto: true,
         description: 'Pechuga troceada salteada en aceite de oliva con láminas de ajo crujiente y pimienta negra recién molida.',
         ingredients: ['Pechuga de pollo', 'Ajo morado', 'Aceite de oliva virgen extra', 'Sal fina y pimienta negra'],
-        optional: ['Perejil fresco']
+        optional: ['Perejil fresco'],
+        substitutions: {}
       },
       {
         id: 'rec-2',
         title: 'Espaguetis al Parmesano y Ajo',
         time: '15 min',
         difficulty: 'Muy fácil',
-        dietary: ['vegetariano'],
+        bases: ['omnivore', 'vegetarian'], // Incompatible con carnivoro y vegano
+        allergens: ['gluten', 'lactosa'],
+        keto: false,
         description: 'Pasta al dente emulsionada con aceite aromático de ajo y abundante parmesano rallado.',
         ingredients: ['Pasta espaguetis', 'Ajo morado', 'Queso parmesano cuña', 'Aceite de oliva virgen extra'],
-        optional: ['Pimienta negra']
+        optional: ['Pimienta negra'],
+        substitutions: {
+          gluten: 'Sustituir espaguetis por pasta de maíz sin gluten o fideos de calabacín.',
+          lactosa: 'Sustituir parmesano tradicional por queso curado sin lactosa o levadura nutricional.'
+        }
       },
       {
         id: 'rec-3',
         title: 'Revuelto Cremoso de Espinacas y Pollo',
         time: '15 min',
         difficulty: 'Fácil',
-        dietary: ['sin_gluten', 'keto'],
+        bases: ['omnivore', 'carnivore'], // Incompatible con vegano/vegetariano
+        allergens: ['huevo'],
+        keto: true,
         description: 'Huevos de corral batidos suavemente con espinacas rehogadas y tiras de pollo a la plancha.',
         ingredients: ['Huevos camperos', 'Espinacas frescas bolsa', 'Pechuga de pollo', 'Aceite de oliva virgen extra'],
-        optional: []
+        optional: [],
+        substitutions: {
+          huevo: 'Sustituir huevos por tofu sedoso revuelto con cúrcuma.'
+        }
       },
       {
         id: 'rec-4',
-        title: 'Pasta cremosa con Pollo y Queso',
+        title: 'Pasta Cremosa con Pollo y Queso',
         time: '22 min',
         difficulty: 'Media',
-        dietary: [],
+        bases: ['omnivore'],
+        allergens: ['gluten', 'lactosa'],
+        keto: false,
         description: 'Plato reconfortante con salsa suave de nata y parmesano fundido.',
         ingredients: ['Pasta espaguetis', 'Pechuga de pollo', 'Queso parmesano cuña', 'Nata para cocinar'],
-        missingFallback: 'Falta nata: Chef IA sugiere emulsionar leche con mantequilla o agua de cocción con parmesano.'
+        optional: [],
+        substitutions: {
+          gluten: 'Usar pasta de arroz o maíz sin gluten.',
+          lactosa: 'Chef IA: Usar nata vegetal de soja/avena y queso sin lactosa.'
+        }
+      },
+      {
+        id: 'rec-5',
+        title: 'Salteado Verde de Espinacas al Ajo',
+        time: '10 min',
+        difficulty: 'Muy fácil',
+        bases: ['omnivore', 'vegetarian', 'vegan'], // Apto 100% para veganos
+        allergens: [],
+        keto: true,
+        description: 'Espinacas frescas salteadas al wok con láminas de ajo morado en aceite de oliva virgen.',
+        ingredients: ['Espinacas frescas bolsa', 'Ajo morado', 'Aceite de oliva virgen extra'],
+        optional: ['Piñones'],
+        substitutions: {}
+      },
+      {
+        id: 'rec-6',
+        title: 'Entrecot a la Plancha con Ajo y Sal',
+        time: '12 min',
+        difficulty: 'Fácil',
+        bases: ['omnivore', 'carnivore'], // Carnívoro estricto
+        allergens: [],
+        keto: true,
+        description: 'Carne jugosa sellada a fuego vivo con grasa natural, aromatizada con ajo y sal gruesa.',
+        ingredients: ['Pechuga de pollo', 'Aceite de oliva virgen extra', 'Sal fina y pimienta negra'],
+        optional: [],
+        substitutions: {}
       }
     ];
 
-    // Perfiles dieteticos activos en el hogar
-    this.dietaryFilters = []; // ['sin_gluten', 'sin_lactosa', 'vegano', 'vegetariano', 'keto']
+    // Perfil Dietetico Guardado (Mandatorio para Recetas y Chef IA)
+    this.dietaryProfile = {
+      base: 'omnivore', // 'omnivore' | 'carnivore' | 'vegetarian' | 'vegan'
+      restrictions: ['sin_lactosa'] // 'sin_gluten', 'sin_lactosa', 'keto', 'sin_frutos_secos', 'sin_huevo', 'sin_marisco', 'sin_azucar', 'bajo_sal', 'bajo_grasa'
+    };
     
     // Vista activa
-    this.currentView = 'carts'; // 'carts', 'pantry', 'vision', 'recipes', 'household'
+    this.currentView = 'carts'; // 'carts', 'pantry', 'recipes'
   }
 
   // Suscripcion a cambios
@@ -269,14 +318,47 @@ class AppState {
     this.notify();
   }
 
-  // --- Dietas ---
-  toggleDietaryRestriction(restrictionKey) {
-    if (this.dietaryFilters.includes(restrictionKey)) {
-      this.dietaryFilters = this.dietaryFilters.filter(k => k !== restrictionKey);
-    } else {
-      this.dietaryFilters.push(restrictionKey);
-    }
+  // --- Perfil Dietético ---
+  setDietaryProfile(base, restrictions) {
+    this.dietaryProfile = {
+      base: base || 'omnivore',
+      restrictions: Array.isArray(restrictions) ? restrictions : []
+    };
     this.notify();
+  }
+
+  getDietaryInfo() {
+    const baseLabels = {
+      omnivore: 'Omnívora',
+      carnivore: 'Carnívora',
+      vegetarian: 'Vegetariana',
+      vegan: 'Vegana'
+    };
+    const baseIcons = {
+      omnivore: 'fa-utensils',
+      carnivore: 'fa-drumstick-bite',
+      vegetarian: 'fa-leaf',
+      vegan: 'fa-seedling'
+    };
+    const restrictionLabels = {
+      sin_gluten: 'Sin Gluten',
+      sin_lactosa: 'Sin Lactosa',
+      keto: 'Keto / Low Carb',
+      sin_frutos_secos: 'Sin Frutos Secos',
+      sin_huevo: 'Sin Huevo',
+      sin_marisco: 'Sin Marisco',
+      sin_azucar: 'Sin Azúcar Añadido',
+      bajo_sal: 'Bajo en Sal',
+      bajo_grasa: 'Bajo en Grasa'
+    };
+
+    return {
+      base: this.dietaryProfile.base,
+      baseLabel: baseLabels[this.dietaryProfile.base] || 'Omnívora',
+      baseIcon: baseIcons[this.dietaryProfile.base] || 'fa-utensils',
+      restrictions: this.dietaryProfile.restrictions,
+      restrictionsLabels: this.dietaryProfile.restrictions.map(r => restrictionLabels[r] || r)
+    };
   }
 }
 

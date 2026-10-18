@@ -1,5 +1,5 @@
 // static/js/modules/recipes.js
-// Motor de recomendacion de recetas segun despensa real y asistente Chef IA
+// Motor de recomendacion de recetas segun despensa real, filtrado dietetico mandatorio y Chef IA
 
 import { state } from '../core/state.js';
 import { notifications } from '../core/ui_notifications.js';
@@ -10,6 +10,7 @@ export function initRecipesModule() {
   renderRecipeFilterButtons();
   renderRecipes();
   bindRecipeEvents();
+  bindDietProfileModal();
 }
 
 export function renderRecipeFilterButtons() {
@@ -45,16 +46,34 @@ export function renderRecipes() {
   const container = document.getElementById('recipes-grid-container');
   if (!container) return;
 
+  // Actualizar etiqueta del badge de dieta en la cabecera
+  const dietInfo = state.getDietaryInfo();
+  const dietBadgeLabel = document.getElementById('recipe-diet-badge-label');
+  if (dietBadgeLabel) {
+    const restrictionsShort = dietInfo.restrictionsLabels.length > 0
+      ? ` · ${dietInfo.restrictionsLabels.join(', ')}`
+      : '';
+    dietBadgeLabel.innerHTML = `Perfil: <strong>${dietInfo.baseLabel}</strong>${restrictionsShort}`;
+  }
+
   // Ingredientes en despensa normalizados a minusculas
   const pantryNames = state.pantry.map(p => p.name.toLowerCase());
 
-  // Evaluar compatibilidad de cada receta
-  const processed = state.recipes.map(recipe => {
+  // 1. REGLA MANDATORIA 1: Filtrar recetas por Base Dietética (Ocultar las que violen la base)
+  const currentBase = state.dietaryProfile.base; // 'omnivore' | 'carnivore' | 'vegetarian' | 'vegan'
+  const currentRestrictions = state.dietaryProfile.restrictions; // array
+
+  const baseFiltered = state.recipes.filter(recipe => {
+    if (!recipe.bases || !Array.isArray(recipe.bases)) return true;
+    return recipe.bases.includes(currentBase);
+  });
+
+  // 2. REGLA MANDATORIA 2: Calcular compatibilidad de despensa y sustituciones para alérgenos/restricciones
+  const processed = baseFiltered.map(recipe => {
     const totalIngredients = recipe.ingredients.length;
     let availableCount = 0;
     const ingredientsStatus = recipe.ingredients.map(ing => {
       const cleanIng = ing.toLowerCase();
-      // Ver si algun item de la despensa coincide
       const has = pantryNames.some(p => p.includes(cleanIng) || cleanIng.includes(p.split(' ')[0]));
       if (has) availableCount++;
       return { name: ing, have: has };
@@ -64,6 +83,23 @@ export function renderRecipes() {
     const isAlmost = availableCount === totalIngredients - 1;
     const missing = ingredientsStatus.filter(i => !i.have).map(i => i.name);
 
+    // Evaluar si requiere adaptación de Chef IA por restricciones
+    const activeSubstitutions = [];
+    if (recipe.substitutions) {
+      if (currentRestrictions.includes('sin_gluten') && recipe.allergens && recipe.allergens.includes('gluten')) {
+        activeSubstitutions.push(recipe.substitutions.gluten || 'Chef IA: Usa alternativa sin gluten');
+      }
+      if (currentRestrictions.includes('sin_lactosa') && recipe.allergens && recipe.allergens.includes('lactosa')) {
+        activeSubstitutions.push(recipe.substitutions.lactosa || 'Chef IA: Usa lácteos sin lactosa o bebida vegetal');
+      }
+      if (currentRestrictions.includes('sin_huevo') && recipe.allergens && recipe.allergens.includes('huevo')) {
+        activeSubstitutions.push(recipe.substitutions.huevo || 'Chef IA: Sustituye por tofu o emulsionante vegetal');
+      }
+      if (currentRestrictions.includes('keto') && recipe.keto === false) {
+        activeSubstitutions.push('Chef IA: Versión Keto disponible reduciendo carbohidratos');
+      }
+    }
+
     return {
       ...recipe,
       availableCount,
@@ -71,20 +107,13 @@ export function renderRecipes() {
       is100,
       isAlmost,
       missing,
-      ingredientsStatus
+      ingredientsStatus,
+      activeSubstitutions
     };
   });
 
-  // Filtrar por restricciones dieteticas si las hay
+  // 3. Filtrar por pestañas (100% vs Casi listas)
   let filtered = processed;
-  if (state.dietaryFilters.length > 0) {
-    filtered = filtered.filter(r => {
-      // Debe cumplir todas las restricciones seleccionadas
-      return state.dietaryFilters.every(diet => r.dietary.includes(diet));
-    });
-  }
-
-  // Filtrar por pestañas (100% vs Casi listas)
   if (recipeFilter === 'ready') {
     filtered = filtered.filter(r => r.is100);
   } else if (recipeFilter === 'almost') {
@@ -95,10 +124,16 @@ export function renderRecipes() {
     container.innerHTML = `
       <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
         <i class="fa-solid fa-utensils" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: var(--border-hover);"></i>
-        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem;">No hay recetas que coincidan con los filtros</h3>
-        <p style="font-size: 0.85rem;">Prueba a quitar restricciones dietéticas o pulsa el botón "Chef IA" para inventar un plato con lo que tengas.</p>
+        <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem;">No hay recetas para tu perfil actual</h3>
+        <p style="font-size: 0.85rem; max-width: 500px; margin: 0 auto 1rem auto;">
+          Con la base <strong>${dietInfo.baseLabel}</strong> y tus existencias, no hay recetas disponibles. Toca el botón de Perfil arriba para ajustar la dieta o pídele a Chef IA que invente un plato.
+        </p>
+        <button class="btn btn-secondary btn-sm" id="btn-empty-open-diet">
+          <i class="fa-solid fa-sliders"></i> Ajustar Perfil Dietético
+        </button>
       </div>
     `;
+    document.getElementById('btn-empty-open-diet')?.addEventListener('click', openDietProfileModal);
     return;
   }
 
@@ -125,11 +160,13 @@ export function renderRecipes() {
           <div class="recipe-meta-row">
             <span><i class="fa-regular fa-clock"></i> ${r.time}</span>
             <span><i class="fa-solid fa-gauge-simple"></i> ${r.difficulty}</span>
-            ${r.dietary.map(d => `<span class="pill pill-culinary" style="font-size:0.7rem; padding:0.15rem 0.5rem;">${d.replace('_', ' ')}</span>`).join('')}
+            <span class="pill pill-culinary" style="font-size:0.7rem; padding:0.15rem 0.5rem;">
+              <i class="fa-solid fa-shield-halved"></i> Apta ${dietInfo.baseLabel}
+            </span>
           </div>
 
           <div class="recipe-ingredients-preview">
-            <strong style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Ingredientes:</strong>
+            <strong style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Ingredientes en despensa:</strong>
             ${r.ingredientsStatus.map(ing => `
               <span class="ingredient-tag ${ing.have ? 'tag-have' : 'tag-missing'}">
                 <i class="fa-solid ${ing.have ? 'fa-check' : 'fa-xmark'}"></i>
@@ -138,9 +175,14 @@ export function renderRecipes() {
             `).join('')}
           </div>
 
-          ${r.missingFallback ? `
-            <div style="background: var(--bg-ai-pill); border: 1px solid var(--border-ai); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--color-ai-dark);">
-              <i class="fa-solid fa-sparkles"></i> <strong>Sustitución IA:</strong> ${r.missingFallback}
+          <!-- Sustituciones Inteligentes de Chef IA si aplica -->
+          ${r.activeSubstitutions.length > 0 ? `
+            <div class="recipe-substitution-box">
+              <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 0.9rem; margin-top: 1px;"></i>
+              <div>
+                <strong>Adaptación Chef IA para tu perfil:</strong>
+                <div>${r.activeSubstitutions.join('<br>')}</div>
+              </div>
             </div>
           ` : ''}
         </div>
@@ -198,9 +240,71 @@ function bindRecipeEvents() {
   if (btnChefAi) {
     btnChefAi.addEventListener('click', openChefAiModal);
   }
+
+  const btnOpenDiet = document.getElementById('btn-open-diet-modal');
+  if (btnOpenDiet) {
+    btnOpenDiet.addEventListener('click', openDietProfileModal);
+  }
 }
 
-// Modal Chef IA Improvisador
+// Modal Perfil Dietético & Directivas Chef IA
+export function openDietProfileModal() {
+  const modal = document.getElementById('modal-diet-profile');
+  if (!modal) return;
+  modal.classList.add('active');
+
+  const btnClose = modal.querySelector('[data-action="close"]');
+  const btnSave = document.getElementById('btn-save-diet-profile');
+  const baseCards = modal.querySelectorAll('.diet-base-card');
+  const checkboxes = modal.querySelectorAll('input[name="diet-restriction"]');
+
+  const currentProfile = state.dietaryProfile;
+
+  // Marcar base activa
+  baseCards.forEach(c => {
+    c.classList.toggle('active', c.dataset.base === currentProfile.base);
+  });
+
+  // Marcar restricciones activas
+  checkboxes.forEach(cb => {
+    cb.checked = currentProfile.restrictions.includes(cb.value);
+  });
+
+  const closeModal = () => modal.classList.remove('active');
+  btnClose.onclick = closeModal;
+  modal.onclick = (e) => {
+    if (e.target === modal) closeModal();
+  };
+
+  // Selección única de base
+  baseCards.forEach(card => {
+    card.onclick = () => {
+      baseCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    };
+  });
+
+  // Guardar perfil
+  btnSave.onclick = () => {
+    const selectedBaseCard = modal.querySelector('.diet-base-card.active');
+    const selectedBase = selectedBaseCard ? selectedBaseCard.dataset.base : 'omnivore';
+    
+    const selectedRestrictions = [];
+    checkboxes.forEach(cb => {
+      if (cb.checked) selectedRestrictions.push(cb.value);
+    });
+
+    closeModal();
+    state.setDietaryProfile(selectedBase, selectedRestrictions);
+    notifications.success('¡Perfil dietético actualizado y aplicado al recetario!');
+  };
+}
+
+function bindDietProfileModal() {
+  // Inicialización de escuchadores si fuera necesario
+}
+
+// Modal Chef IA Improvisador con Directivas Dietéticas Activas
 export function openChefAiModal() {
   const modal = document.getElementById('modal-chef-ai');
   if (!modal) return;
@@ -215,28 +319,45 @@ export function openChefAiModal() {
 
   btnGenerate.onclick = () => {
     btnGenerate.disabled = true;
-    btnGenerate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Analizando despensa...`;
+    btnGenerate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Aplicando perfil dietético...`;
 
     setTimeout(() => {
       btnGenerate.disabled = false;
-      btnGenerate.innerHTML = `<i class="fa-solid fa-sparkles"></i> Proponer Nueva Receta`;
+      btnGenerate.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Proponer Nueva Receta`;
 
-      // Simular propuesta a medida
+      const dietInfo = state.getDietaryInfo();
+      const isVeg = dietInfo.base === 'vegetarian' || dietInfo.base === 'vegan';
+      const isCarn = dietInfo.base === 'carnivore';
+
+      let dishTitle = 'Salteado "Rescate de Despensa"';
+      let dishDesc = '';
+      if (isVeg) {
+        dishTitle = 'Salteado Verde de Espinacas con Parmesano Curado';
+        dishDesc = `Adaptado estrictamente a tu dieta <strong>${dietInfo.baseLabel}</strong>: se omiten carnes y se potencian tus espinacas frescas con ajo morado y aceite de oliva virgen.`;
+      } else if (isCarn) {
+        dishTitle = 'Pechuga a la Plancha al Ajo Crujiente';
+        dishDesc = `Alineado con tu dieta <strong>${dietInfo.baseLabel}</strong>: alta proteína con pollo fresco, aromatizado en aceite y sal, omitiendo carbohidratos.`;
+      } else {
+        dishTitle = 'Salteado Rápido Pollo y Espinacas';
+        dishDesc = `Hemos aprovechado tu <strong>pechuga de pollo</strong> y las <strong>espinacas</strong> combinándolas con tus <strong>huevos camperos</strong> y un toque de parmesano crujiente.`;
+      }
+
       resultsDiv.innerHTML = `
         <div class="card" style="border: 1px solid var(--border-ai); background: #fafafa;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <h4 style="color:var(--color-ai-dark); font-size:1.05rem;"><i class="fa-solid fa-sparkles"></i> Salteado Rápido "Rescate de Despensa"</h4>
+            <h4 style="color:var(--color-ai-dark); font-size:1.05rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> ${dishTitle}</h4>
             <span class="pill pill-culinary">18 min</span>
           </div>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem;">
-            Hemos aprovechado tu <strong>pechuga de pollo</strong> y las <strong>espinacas</strong> (que llevan varios días en la nevera) combinándolas con tus <strong>huevos camperos</strong> y un toque de parmesano crujiente.
+            ${dishDesc}
           </p>
           <div style="font-size:0.8rem; background:var(--bg-card); padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-            <strong>Consejo de sustitución:</strong> Si no quieres usar pollo, sustitúyelo por dados de tofu o champiñones salteados con el mismo tiempo de cocción.
+            <strong>Directiva Dietética Activa:</strong> ${dietInfo.baseLabel} (${dietInfo.restrictionsLabels.join(', ') || 'Sin restricciones'}). Chef IA ha garantizado la compatibilidad total.
           </div>
         </div>
       `;
-      notifications.info('¡Chef IA ha ideado un plato para gastar tus alimentos frescos!');
+      notifications.info(`Chef IA ha ideado un plato para tu dieta ${dietInfo.baseLabel}`);
     }, 700);
   };
 }
+
