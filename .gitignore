@@ -1,0 +1,7 @@
+# Binarios locales
+cloudflared.exe
+*.exe
+
+# Sistema y logs
+.DS_Store
+Thumbs.db

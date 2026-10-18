@@ -447,11 +447,12 @@
         <p style="font-size: 0.85rem; color: var(--text-muted);">
           Haz una foto panorámica a los alimentos que acabas de traer del supermercado sobre la encimera o la mesa para incorporarlos a la despensa sin esfuerzo.
         </p>
-        <div class="camera-preview-box" id="purchase-camera-preview" style="height: 180px;">
+        <div class="camera-preview-box" id="purchase-camera-preview" style="height: 220px; position: relative;">
+          <video id="purchase-video" autoplay playsinline muted style="display: none;"></video>
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>
-          <div style="text-align: center; color: #94a3b8;">
+          <div id="purchase-placeholder" style="text-align: center; color: #94a3b8; z-index: 2;">
             <i class="fa-solid fa-camera" style="font-size: 2.2rem; margin-bottom: 0.4rem; color: #475569;"></i>
             <p style="font-size: 0.8rem;">Enfoca tu compra desembalada sobre la mesa</p>
           </div>
@@ -500,11 +501,12 @@
           </select>
         </div>
 
-        <div class="camera-preview-box" id="audit-camera-preview" style="height: 180px;">
+        <div class="camera-preview-box" id="audit-camera-preview" style="height: 220px; position: relative;">
+          <video id="audit-video" autoplay playsinline muted style="display: none;"></video>
           <div class="camera-grid-overlay">
             <div></div><div></div><div></div><div></div>
           </div>
-          <div style="text-align: center; color: #94a3b8;">
+          <div id="audit-placeholder" style="text-align: center; color: #94a3b8; z-index: 2;">
             <i class="fa-solid fa-camera" style="font-size: 2.2rem; margin-bottom: 0.4rem; color: #475569;"></i>
             <p style="font-size: 0.8rem;">Enfoca las baldas de tu zona seleccionada</p>
           </div>
