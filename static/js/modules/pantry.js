@@ -153,7 +153,7 @@ export function renderPantryItems() {
           </button>
           <button class="btn btn-danger btn-sm" data-action="deplete" title="Marcar como consumido y devolver a la lista">
             <i class="fa-solid fa-arrow-rotate-left"></i>
-            <span>Gastado → Carrito</span>
+            <span>Gastado <i class="fa-solid fa-arrow-right" style="font-size:0.7rem; margin:0 2px;"></i> Carrito</span>
           </button>
         </div>
       </div>
@@ -173,7 +173,7 @@ export function renderPantryItems() {
 
     card.querySelector('[data-action="deplete"]').addEventListener('click', () => {
       state.depletePantryItem(itemId, true);
-      notifications.info('Alimento gastado → Devuelto al carrito de compra');
+      notifications.info('Alimento gastado y devuelto al carrito');
       renderPantryItems();
       renderCheckinWidget();
     });

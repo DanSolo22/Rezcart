@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuestas de Paletas de Color — Rezcart</title>
+  
+  <!-- FontAwesome 6 Offline Local (Cero Emojis) -->
+  <script src="static/js/fontawesome.min.js"></script>
+
+  <style>
+    :root {
+      /* Fuente Universal */
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --radius-pill: 9999px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+      /* Variables Dinamicas de la Paleta Activa (Por defecto: Paleta 1 Botánica) */
+      --p-canvas: #f7f9f6;
+      --p-card: #ffffff;
+      --p-border: #e1e8df;
+      --p-border-hover: #c4d3bf;
+      --p-text: #142118;
+      --p-text-muted: #526356;
+      
+      --p-primary: #2d6a4f;
+      --p-primary-dark: #1b4332;
+      --p-primary-bg: #e8f3ed;
+      --p-primary-border: #b7dfca;
+
+      --p-warning: #c97a1f;
+      --p-warning-bg: #fdf5e8;
+      --p-warning-border: #f5d7a6;
+
+      --p-depleted: #c44536;
+      --p-depleted-bg: #faebe8;
+      --p-depleted-border: #f2c1bb;
+
+      --p-ai: #3d5a80;
+      --p-ai-bg: #edf2f7;
+      --p-ai-border: #c8d7e6;
+
+      --p-slate: #5c677d;
+      --p-slate-bg: #f0f2f5;
+      --p-slate-border: #d0d5dd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: #f1f5f9;
+      color: #0f172a;
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-banner {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .header-banner h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .header-banner p {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-top: 0.35rem;
+      max-width: 700px;
+    }
+
+    /* Grid de Selector de Paletas */
+    .palettes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .palette-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .palette-card:hover {
+      border-color: #94a3b8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .palette-card.active {
+      border-color: #0f172a;
+      box-shadow: 0 0 0 2px #0f172a, 0 6px 16px rgba(15, 23, 42, 0.1);
+    }
+
+    .palette-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .palette-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .palette-tagline {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.2rem;
+    }
+
+    .active-badge {
+      display: none;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .palette-card.active .active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Muestras de Color (Swatches) */
+    .swatches-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f8fafc;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-md);
+      border: 1px solid #e2e8f0;
+    }
+
+    .swatch-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+    }
+
+    .swatch-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .swatch-label {
+      font-size: 0.65rem;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .palette-desc {
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       SHOWCASE INTERACTIVO: COMPONENTES REALES DE REZCART
+       ========================================================================== */
+    .preview-section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preview-sandbox {
+      background-color: var(--p-canvas);
+      color: var(--p-text);
+      border: 2px solid var(--p-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+      transition: all var(--transition);
+    }
+
+    .sandbox-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--p-border);
+      margin-bottom: 1.5rem;
+    }
+
+    .sandbox-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sandbox-brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: var(--p-primary);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .sandbox-brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--p-text);
+    }
+
+    .sandbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Tarjetas del Sandbox */
+    .sb-card {
+      background: var(--p-card);
+      border: 1px solid var(--p-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sb-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--p-text);
+    }
+
+    /* Badges Pill */
+    .sb-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .sb-pill-culinary {
+      background: var(--p-primary-bg);
+      color: var(--p-primary-dark);
+      border: 1px solid var(--p-primary-border);
+    }
+
+    .sb-pill-warning {
+      background: var(--p-warning-bg);
+      color: var(--p-warning);
+      border: 1px solid var(--p-warning-border);
+    }
+
+    .sb-pill-depleted {
+      background: var(--p-depleted-bg);
+      color: var(--p-depleted);
+      border: 1px solid var(--p-depleted-border);
+    }
+
+    .sb-pill-ai {
+      background: var(--p-ai-bg);
+      color: var(--p-ai);
+      border: 1px solid var(--p-ai-border);
+    }
+
+    .sb-pill-slate {
+      background: var(--p-slate-bg);
+      color: var(--p-slate);
+      border: 1px solid var(--p-slate-border);
+    }
+
+    /* Botones del Sandbox */
+    .sb-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all var(--transition);
+    }
+
+    .sb-btn-primary {
+      background: var(--p-primary);
+      color: #ffffff;
+    }
+
+    .sb-btn-primary:hover {
+      background: var(--p-primary-dark);
+    }
+
+    .sb-btn-secondary {
+      background: var(--p-card);
+      color: var(--p-text);
+      border: 1px solid var(--p-border);
+    }
+
+    .sb-btn-ai {
+      background: var(--p-ai);
+      color: #ffffff;
+    }
+
+    .sb-btn-danger {
+      background: var(--p-depleted-bg);
+      color: var(--p-depleted);
+      border: 1px solid var(--p-depleted-border);
+    }
+
+    /* Tabla Comparativa */
+    .matrix-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      overflow-x: auto;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .matrix-table th, .matrix-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .matrix-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+    }
+
+    .matrix-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .apply-bar {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-md);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Cabecera -->
+    <header class="header-banner">
+      <div>
+        <h1>
+          <i class="fa-solid fa-palette" style="color: #059669;"></i>
+          Propuestas de Paleta de Color — Rezcart
+        </h1>
+        <p>
+          Selecciona cualquiera de las <strong>6 propuestas culinarias</strong> para ver en tiempo real cómo lucen los carritos, los semáforos de frescura de la despensa, las tarjetas de recetas y el módulo de Chef IA. <em>(100% Cero Emojis · FontAwesome 6).</em>
+        </p>
+      </div>
+      <div>
+        <span class="sb-pill sb-pill-culinary" id="current-selected-label">
+          <i class="fa-solid fa-check"></i> Activa: Mercado Botánico & Salvia
+        </span>
+      </div>
+    </header>
+
+    <!-- Selector de las 6 Paletas -->
+    <section class="palettes-grid">
+
+      <!-- Paleta 1 -->
+      <div class="palette-card active" data-id="1">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">1. Mercado Botánico & Salvia</h3>
+            <p class="palette-tagline">Frescura Orgánica · Bienestar · Huerto Natural</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #f7f9f6;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #2d6a4f;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #c97a1f;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #c44536;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #3d5a80;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Tonos salvia y verde bosque profundo sobre lienzo blanquecino suave. Máxima sensación de comida real, aceite de oliva y productos de la tierra sin estridencias.
+        </p>
+      </div>
+
+      <!-- Paleta 2 -->
+      <div class="palette-card" data-id="2">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">2. Bistró Nórdico & Cobre</h3>
+            <p class="palette-tagline">Restaurante Contemporáneo · Cerámica · Maderas</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #f8f7f4;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #1e3f20;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #d48b38;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #b83a3a;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #2c5282;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Inspirada en el diseño escandinavo: blanco alabastro cálido, verde abeto profundo y acentos en cobre dorado. Muy sofisticada y acogedora.
+        </p>
+      </div>
+
+      <!-- Paleta 3 -->
+      <div class="palette-card" data-id="3">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">3. Huerta Mediterránea & Terracota</h3>
+            <p class="palette-tagline">Albahaca Viva · Arcilla · Pasión Gastronómica</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #fbf8f5;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #1b7a4a;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #d97706;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #d64527;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #7c3aed;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Colores de huerto mediterráneo: verde albahaca vivo, arcilla cocida, azafrán dorado y púrpura higo para el Chef IA. Estimula el apetito y transmite vida.
+        </p>
+      </div>
+
+      <!-- Paleta 4 -->
+      <div class="palette-card" data-id="4">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">4. Atelier Gourmet & Platino</h3>
+            <p class="palette-tagline">Precisión de Chef · Teal Profundo · Alto Contraste</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #f3f4f6;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #0f766e;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #ea580c;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #e11d48;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #6366f1;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Gris platino neutro, verde azulado esmeralda (Teal) con contrastes enérgicos. Estilo técnico impecable tipo Linear/Stripe para los amantes de la precisión.
+        </p>
+      </div>
+
+      <!-- Paleta 5 -->
+      <div class="palette-card" data-id="5">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">5. Mercado Zen & Matcha</h3>
+            <p class="palette-tagline">Té Matcha · Papel de Arroz · Armonía Umami</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #f9f9f6;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #476930;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #c47d2b;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #9f2b38;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #394a59;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Inspirada en el orden de las cocinas japonesas: verde matcha suave, miso tostado y ciruela umeboshi sobre papel washi. Serena, elegante y única.
+        </p>
+      </div>
+
+      <!-- Paleta 6 -->
+      <div class="palette-card" data-id="6">
+        <div class="palette-top">
+          <div>
+            <h3 class="palette-title">6. Provenza & Lavanda Culinaria</h3>
+            <p class="palette-tagline">Tomillo Silvestre · Lino · Cítricos del Campo</p>
+          </div>
+          <span class="active-badge"><i class="fa-solid fa-check"></i> Activa</span>
+        </div>
+        <div class="swatches-row">
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #f7f6f9;"></div>
+            <span class="swatch-label">Fondo</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #3f6b4a;"></div>
+            <span class="swatch-label">Cocina</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #d9822b;"></div>
+            <span class="swatch-label">Aviso</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #b83253;"></div>
+            <span class="swatch-label">Gasto</span>
+          </div>
+          <div class="swatch-group">
+            <div class="swatch-circle" style="background: #6d597a;"></div>
+            <span class="swatch-label">IA/Foto</span>
+          </div>
+        </div>
+        <p class="palette-desc">
+          Toque campestre refinado: fondo lino suavemente atenuado, verde tomillo, ciruela lavanda para la IA y cítrico mandarina para avisos.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================
+         VISTA PREVIA EN VIVO DE COMPONENTES REZCART
+         ====================================================================== -->
+    <div class="preview-section-title">
+      <span><i class="fa-solid fa-eye"></i> Vista Previa en Vivo de Componentes</span>
+      <span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">(Cambia al pulsar cualquiera de las tarjetas de arriba)</span>
+    </div>
+
+    <div class="preview-sandbox">
+
+      <!-- Cabecera de Muestra -->
+      <div class="sandbox-header">
+        <div class="sandbox-brand">
+          <div class="sandbox-brand-icon">
+            <i class="fa-solid fa-basket-shopping"></i>
+          </div>
+          <div>
+            <div class="sandbox-brand-title">Rezcart</div>
+            <div style="font-size: 0.75rem; color: var(--p-text-muted);">Carrito · Despensa · Recetas</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <span class="sb-pill sb-pill-culinary"><i class="fa-solid fa-cart-shopping"></i> Carritos</span>
+          <span class="sb-pill sb-pill-culinary"><i class="fa-solid fa-box-archive"></i> Despensa (8)</span>
+          <span class="sb-pill sb-pill-ai"><i class="fa-solid fa-wand-magic-sparkles"></i> Chef IA</span>
+        </div>
+      </div>
+
+      <!-- Cuadrícula con Componentes Reales -->
+      <div class="sandbox-grid">
+
+        <!-- Componente 1: Fila de Carrito -->
+        <div class="sb-card">
+          <div class="sb-title">
+            <span><i class="fa-solid fa-cart-shopping"></i> Artículo de la Compra</span>
+            <span class="sb-pill sb-pill-culinary"><i class="fa-solid fa-carrot"></i> Cocina</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; background: var(--p-canvas); border-radius: var(--radius-sm); border: 1px solid var(--p-border);">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <div style="width: 20px; height: 20px; border-radius: 4px; background: var(--p-primary); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div>
+                <strong style="font-size: 0.9rem;">Tomates pera para ensalada</strong>
+                <div style="font-size: 0.75rem; color: var(--p-text-muted);">Verduras / Hortalizas</div>
+              </div>
+            </div>
+            <button class="sb-btn sb-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+          <button class="sb-btn sb-btn-primary" style="width: 100%;">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Finalizar Compra y Traspasar</span>
+          </button>
+        </div>
+
+        <!-- Componente 2: Alimento en Despensa con Frescura -->
+        <div class="sb-card">
+          <div class="sb-title">
+            <span><i class="fa-solid fa-box-archive"></i> Alimento en Despensa</span>
+            <span class="sb-pill sb-pill-warning"><i class="fa-solid fa-triangle-exclamation"></i> Lleva 5 días</span>
+          </div>
+          <div>
+            <h4 style="font-size: 1rem; font-weight: 700;">Pechuga de pollo fileteada</h4>
+            <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--p-text-muted); margin-top: 0.2rem;">
+              <span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--p-warning);"></span>
+              <span>Frescura estimada superada (Revisar)</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 0.5rem; border-top: 1px solid var(--p-border); padding-top: 0.75rem;">
+            <button class="sb-btn sb-btn-secondary" style="font-size: 0.75rem; flex: 1;">
+              <i class="fa-solid fa-rotate"></i>
+              <span>Verificado</span>
+            </button>
+            <button class="sb-btn sb-btn-danger" style="font-size: 0.75rem; flex: 1;">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+              <span>Gastado a Carrito</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Componente 3: Receta Calculada con Chef IA -->
+        <div class="sb-card">
+          <div class="sb-title">
+            <span><i class="fa-solid fa-utensils"></i> Tarjeta de Receta</span>
+            <span class="sb-pill sb-pill-culinary"><i class="fa-solid fa-circle-check"></i> 100% Cocinable</span>
+          </div>
+          <div>
+            <h4 style="font-size: 1rem; font-weight: 700;">Pollo al Ajillo Dorado</h4>
+            <div style="font-size: 0.8rem; color: var(--p-text-muted); margin-top: 0.2rem;">
+              Salteado aromático con aceite de oliva, láminas de ajo y pimienta negra.
+            </div>
+          </div>
+          <div style="background: var(--p-ai-bg); border: 1px solid var(--p-ai-border); border-radius: var(--radius-sm); padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--p-ai);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <strong>Chef IA:</strong> Gasta el pollo antes de mañana.
+          </div>
+          <button class="sb-btn sb-btn-ai" style="width: 100%;">
+            <i class="fa-solid fa-fire-burner"></i>
+            <span>¡Cocinar ahora!</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Barra Inferior de Aplicación Directa -->
+      <div class="apply-bar">
+        <div>
+          <strong id="bar-palette-title" style="font-size: 1rem;">1. Mercado Botánico & Salvia</strong>
+          <p style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.15rem;">¿Te gusta esta combinación para Rezcart?</p>
+        </div>
+        <button class="sb-btn sb-btn-primary" id="btn-apply-palette" style="background: #ffffff; color: #0f172a;">
+          <i class="fa-solid fa-check"></i>
+          <span>Elegir esta Paleta</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Tabla Comparativa de Tokens -->
+    <div class="matrix-card">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">
+        <i class="fa-solid fa-table-list"></i> Matriz Comparativa de Paletas y Rationale
+      </h3>
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Paleta</th>
+            <th>Fondo Canvas</th>
+            <th>Primario (Cocina)</th>
+            <th>Aviso Frescura</th>
+            <th>Alerta / Gasto</th>
+            <th>Chef IA / Visión</th>
+            <th>Identidad y Carácter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Mercado Botánico</strong></td>
+            <td><code>#f7f9f6</code></td>
+            <td><code>#2d6a4f</code> Salvia</td>
+            <td><code>#c97a1f</code> Ocre</td>
+            <td><code>#c44536</code> Terracota</td>
+            <td><code>#3d5a80</code> Pizarra</td>
+            <td>Orgánica, natural, saludable y atemporal.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Bistró Nórdico</strong></td>
+            <td><code>#f8f7f4</code></td>
+            <td><code>#1e3f20</code> Abeto</td>
+            <td><code>#d48b38</code> Cobre</td>
+            <td><code>#b83a3a</code> Arándano</td>
+            <td><code>#2c5282</code> Cobalto</td>
+            <td>Restaurante de autor, maderas y porcelana.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Huerta Mediterránea</strong></td>
+            <td><code>#fbf8f5</code></td>
+            <td><code>#1b7a4a</code> Albahaca</td>
+            <td><code>#d97706</code> Azafrán</td>
+            <td><code>#d64527</code> Arcilla</td>
+            <td><code>#7c3aed</code> Higo</td>
+            <td>Cálida, viva, estimulante del apetito.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Atelier Gourmet</strong></td>
+            <td><code>#f3f4f6</code></td>
+            <td><code>#0f766e</code> Teal Esmeralda</td>
+            <td><code>#ea580c</code> Yema</td>
+            <td><code>#e11d48</code> Frambuesa</td>
+            <td><code>#6366f1</code> Índigo</td>
+            <td>Técnica, estilo Linear, moderna y precisa.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Mercado Zen</strong></td>
+            <td><code>#f9f9f6</code></td>
+            <td><code>#476930</code> Té Matcha</td>
+            <td><code>#c47d2b</code> Miso</td>
+            <td><code>#9f2b38</code> Umeboshi</td>
+            <td><code>#394a59</code> Sumi</td>
+            <td>Paz visual, wabi-sabi, orden japonés.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Provenza Campestre</strong></td>
+            <td><code>#f7f6f9</code></td>
+            <td><code>#3f6b4a</code> Tomillo</td>
+            <td><code>#d9822b</code> Mandarina</td>
+            <td><code>#b83253</code> Grosella</td>
+            <td><code>#6d597a</code> Lavanda</td>
+            <td>Rústica chic, acogedora y aromática.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const PALETTES = {
+      1: {
+        name: 'Mercado Botánico & Salvia',
+        canvas: '#f7f9f6',
+        card: '#ffffff',
+        border: '#e1e8df',
+        text: '#142118',
+        textMuted: '#526356',
+        primary: '#2d6a4f',
+        primaryDark: '#1b4332',
+        primaryBg: '#e8f3ed',
+        primaryBorder: '#b7dfca',
+        warning: '#c97a1f',
+        warningBg: '#fdf5e8',
+        warningBorder: '#f5d7a6',
+        depleted: '#c44536',
+        depletedBg: '#faebe8',
+        depletedBorder: '#f2c1bb',
+        ai: '#3d5a80',
+        aiBg: '#edf2f7',
+        aiBorder: '#c8d7e6',
+        slate: '#5c677d',
+        slateBg: '#f0f2f5',
+        slateBorder: '#d0d5dd'
+      },
+      2: {
+        name: 'Bistró Nórdico & Cobre',
+        canvas: '#f8f7f4',
+        card: '#ffffff',
+        border: '#eae6df',
+        text: '#1c1917',
+        textMuted: '#57534e',
+        primary: '#1e3f20',
+        primaryDark: '#132b15',
+        primaryBg: '#eaf2eb',
+        primaryBorder: '#c1dcc4',
+        warning: '#d48b38',
+        warningBg: '#faf3eb',
+        warningBorder: '#edd2b6',
+        depleted: '#b83a3a',
+        depletedBg: '#f9ecec',
+        depletedBorder: '#f0c2c2',
+        ai: '#2c5282',
+        aiBg: '#ebf2fa',
+        aiBorder: '#bee3f8',
+        slate: '#6b7280',
+        slateBg: '#f3f4f6',
+        slateBorder: '#d1d5db'
+      },
+      3: {
+        name: 'Huerta Mediterránea & Terracota',
+        canvas: '#fbf8f5',
+        card: '#ffffff',
+        border: '#eedfd4',
+        text: '#292524',
+        textMuted: '#6b5c53',
+        primary: '#1b7a4a',
+        primaryDark: '#0d4e2e',
+        primaryBg: '#e6f5ec',
+        primaryBorder: '#a9e2c1',
+        warning: '#d97706',
+        warningBg: '#fffbeb',
+        warningBorder: '#fde68a',
+        depleted: '#d64527',
+        depletedBg: '#fcebe6',
+        depletedBorder: '#f6c3b7',
+        ai: '#7c3aed',
+        aiBg: '#f5f3ff',
+        aiBorder: '#ddd6fe',
+        slate: '#57534e',
+        slateBg: '#f5f5f4',
+        slateBorder: '#d6d3d1'
+      },
+      4: {
+        name: 'Atelier Gourmet & Platino',
+        canvas: '#f3f4f6',
+        card: '#ffffff',
+        border: '#e5e7eb',
+        text: '#0f172a',
+        textMuted: '#4b5563',
+        primary: '#0f766e',
+        primaryDark: '#115e59',
+        primaryBg: '#ccfbf1',
+        primaryBorder: '#99f6e4',
+        warning: '#ea580c',
+        warningBg: '#ffedd5',
+        warningBorder: '#fed7aa',
+        depleted: '#e11d48',
+        depletedBg: '#ffe4e6',
+        depletedBorder: '#fecdd3',
+        ai: '#6366f1',
+        aiBg: '#eef2ff',
+        aiBorder: '#c7d2fe',
+        slate: '#475569',
+        slateBg: '#f1f5f9',
+        slateBorder: '#cbd5e1'
+      },
+      5: {
+        name: 'Mercado Zen & Matcha',
+        canvas: '#f9f9f6',
+        card: '#ffffff',
+        border: '#e7e7df',
+        text: '#1a1e1b',
+        textMuted: '#585e59',
+        primary: '#476930',
+        primaryDark: '#2c461c',
+        primaryBg: '#edf4ea',
+        primaryBorder: '#c6dcbe',
+        warning: '#c47d2b',
+        warningBg: '#f9f2e8',
+        warningBorder: '#e8cfb0',
+        depleted: '#9f2b38',
+        depletedBg: '#f7eaeb',
+        depletedBorder: '#e6bdc2',
+        ai: '#394a59',
+        aiBg: '#eff3f6',
+        aiBorder: '#cbd7e2',
+        slate: '#59656f',
+        slateBg: '#f0f3f5',
+        slateBorder: '#cdd5db'
+      },
+      6: {
+        name: 'Provenza & Lavanda Culinaria',
+        canvas: '#f7f6f9',
+        card: '#ffffff',
+        border: '#e6e3ed',
+        text: '#20202a',
+        textMuted: '#575a6b',
+        primary: '#3f6b4a',
+        primaryDark: '#24452c',
+        primaryBg: '#ebf3ed',
+        primaryBorder: '#b8dcbe',
+        warning: '#d9822b',
+        warningBg: '#fdf4eb',
+        warningBorder: '#f7d3b0',
+        depleted: '#b83253',
+        depletedBg: '#fbebf0',
+        depletedBorder: '#ecc0d0',
+        ai: '#6d597a',
+        aiBg: '#f5f0f7',
+        aiBorder: '#ded2e3',
+        slate: '#575a6b',
+        slateBg: '#f0f0f5',
+        slateBorder: '#d0d1de'
+      }
+    };
+
+    let selectedId = 1;
+
+    function applyPalette(id) {
+      selectedId = id;
+      const p = PALETTES[id];
+      const r = document.documentElement;
+
+      r.style.setProperty('--p-canvas', p.canvas);
+      r.style.setProperty('--p-card', p.card);
+      r.style.setProperty('--p-border', p.border);
+      r.style.setProperty('--p-text', p.text);
+      r.style.setProperty('--p-text-muted', p.textMuted);
+      r.style.setProperty('--p-primary', p.primary);
+      r.style.setProperty('--p-primary-dark', p.primaryDark);
+      r.style.setProperty('--p-primary-bg', p.primaryBg);
+      r.style.setProperty('--p-primary-border', p.primaryBorder);
+      r.style.setProperty('--p-warning', p.warning);
+      r.style.setProperty('--p-warning-bg', p.warningBg);
+      r.style.setProperty('--p-warning-border', p.warningBorder);
+      r.style.setProperty('--p-depleted', p.depleted);
+      r.style.setProperty('--p-depleted-bg', p.depletedBg);
+      r.style.setProperty('--p-depleted-border', p.depletedBorder);
+      r.style.setProperty('--p-ai', p.ai);
+      r.style.setProperty('--p-ai-bg', p.aiBg);
+      r.style.setProperty('--p-ai-border', p.aiBorder);
+      r.style.setProperty('--p-slate', p.slate);
+      r.style.setProperty('--p-slate-bg', p.slateBg);
+      r.style.setProperty('--p-slate-border', p.slateBorder);
+
+      document.querySelectorAll('.palette-card').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.id) === id);
+      });
+
+      document.getElementById('current-selected-label').innerHTML = `<i class="fa-solid fa-check"></i> Activa: ${p.name}`;
+      document.getElementById('bar-palette-title').textContent = `${id}. ${p.name}`;
+    }
+
+    document.querySelectorAll('.palette-card').forEach(card => {
+      card.addEventListener('click', () => {
+        applyPalette(parseInt(card.dataset.id));
+      });
+    });
+
+    document.getElementById('btn-apply-palette').addEventListener('click', () => {
+      const p = PALETTES[selectedId];
+      alert(`Has seleccionado la paleta: "${p.name}". ¡Dime en el chat que aplique la paleta ${selectedId} y la integraré en Rezcart!`);
+    });
+  </script>
+</body>
+</html>
