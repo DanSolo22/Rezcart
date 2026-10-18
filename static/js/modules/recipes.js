@@ -201,7 +201,7 @@ function bindRecipeEvents() {
 }
 
 // Modal Chef IA Improvisador
-function openChefAiModal() {
+export function openChefAiModal() {
   const modal = document.getElementById('modal-chef-ai');
   if (!modal) return;
   modal.classList.add('active');

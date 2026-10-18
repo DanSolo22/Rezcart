@@ -4,23 +4,23 @@
    ========================================================================== */
 
 :root {
-  /* Canvas y Superficies */
-  --bg-canvas: #f8fafc;
+  /* Canvas y Superficies - Atelier Gourmet & Platino */
+  --bg-canvas: #f3f4f6;
   --bg-card: #ffffff;
   --bg-subtle: #f1f5f9;
-  --bg-hover: #f8fafc;
+  --bg-hover: #eef2f6;
   --bg-active: #e2e8f0;
 
-  /* Bordes Nitidos */
+  /* Bordes Nitidos Platino */
   --border-subtle: #e2e8f0;
   --border-hover: #cbd5e1;
-  --border-focus: #94a3b8;
+  --border-focus: #0f766e;
 
   /* Tipografia y Textos */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --text-main: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --text-subtle: #94a3b8;
   --text-inverse: #ffffff;
 
@@ -30,32 +30,32 @@
   --shadow-card-hover: 0 4px 8px -1px rgba(15, 23, 42, 0.08), 0 14px 24px -4px rgba(15, 23, 42, 0.07);
   --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 10px 10px -5px rgba(15, 23, 42, 0.06);
 
-  /* Paleta Semantica Culinaria */
-  /* 1. Frescura y Alimentos Culinarios (Emerald) */
-  --color-culinary: #059669;
-  --color-culinary-dark: #047857;
-  --bg-culinary-pill: #ecfdf5;
-  --border-culinary: #a7f3d0;
+  /* Paleta Semantica Culinaria (Opcion 4: Atelier Gourmet & Platino) */
+  /* 1. Frescura y Alimentos Culinarios (Teal Atelier / Mandil de Chef) */
+  --color-culinary: #0f766e;
+  --color-culinary-dark: #115e59;
+  --bg-culinary-pill: #ccfbf1;
+  --border-culinary: #99f6e4;
 
-  /* 2. Atencion / Frescura Implicita / Casi Listo (Amber) */
-  --color-warning: #d97706;
-  --color-warning-dark: #b45309;
-  --bg-warning-pill: #fffbeb;
-  --border-warning: #fde68a;
+  /* 2. Atencion / Frescura Implicita / Casi Listo (Naranja Yema Calido) */
+  --color-warning: #ea580c;
+  --color-warning-dark: #c2410c;
+  --bg-warning-pill: #ffedd5;
+  --border-warning: #fed7aa;
 
-  /* 3. Agotado / Pendiente / No Comprado (Rose/Coral) */
+  /* 3. Agotado / Pendiente / Reposicion (Frambuesa Gourmet) */
   --color-depleted: #e11d48;
   --color-depleted-dark: #be123c;
-  --bg-depleted-pill: #fff1f2;
+  --bg-depleted-pill: #ffe4e6;
   --border-depleted: #fecdd3;
 
-  /* 4. Chef IA & Escaneo de Foto (Indigo) */
-  --color-ai: #4f46e5;
-  --color-ai-dark: #4338ca;
+  /* 4. Chef IA & Escaneo de Foto (Indigo Electrico Atelier) */
+  --color-ai: #6366f1;
+  --color-ai-dark: #4f46e5;
   --bg-ai-pill: #eef2ff;
   --border-ai: #c7d2fe;
 
-  /* 5. Hogar / Limpieza / Bazar (Slate) */
+  /* 5. Hogar / Limpieza / Bazar (Pizarra Platino) */
   --color-non-food: #475569;
   --color-non-food-dark: #334155;
   --bg-non-food-pill: #f1f5f9;
@@ -1147,3 +1147,403 @@ body {
 .mobile-nav-btn.active {
   color: var(--color-culinary);
 }
+
+/* ==========================================================================
+   Identidad Culinaria de Marca Rezcart (Atelier Gourmet)
+   ========================================================================== */
+.brand-badge-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--bg-culinary-pill);
+  color: var(--color-culinary);
+  border: 1px solid var(--border-culinary);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   Componente Característico 1: "Pulso de Cocina" (Kitchen Vitality Strip)
+   ========================================================================== */
+.kitchen-vitality-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.kitchen-vitality-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(to bottom, var(--color-culinary), var(--color-warning));
+}
+
+.vitality-metrics-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.vitality-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.vitality-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.vitality-icon-teal {
+  background: var(--bg-culinary-pill);
+  color: var(--color-culinary);
+  border: 1px solid var(--border-culinary);
+}
+
+.vitality-icon-orange {
+  background: var(--bg-warning-pill);
+  color: var(--color-warning);
+  border: 1px solid var(--border-warning);
+}
+
+.vitality-icon-indigo {
+  background: var(--bg-ai-pill);
+  color: var(--color-ai);
+  border: 1px solid var(--border-ai);
+}
+
+.vitality-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vitality-info .vitality-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.vitality-info .vitality-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-feature-settings: "tnum";
+}
+
+.vitality-info .vitality-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Micro-gauge visual de frescura */
+.freshness-mini-gauge {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.freshness-mini-gauge span {
+  width: 5px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.freshness-mini-gauge span.seg-green {
+  background: var(--color-culinary);
+}
+
+.freshness-mini-gauge span.seg-orange {
+  background: var(--color-warning);
+}
+
+.btn-vitality-chef {
+  background: var(--color-culinary);
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+  transition: all var(--transition-smooth);
+}
+
+.btn-vitality-chef:hover {
+  background: var(--color-culinary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.35);
+}
+
+/* ==========================================================================
+   Componente Característico 2: Pellizcos Rápidos Culinarios (Quick Staples)
+   ========================================================================== */
+.quick-staples-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-top: -0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.2rem 0;
+}
+
+.quick-staples-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.staples-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.staple-chip {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-hover);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.staple-chip:hover {
+  background: var(--bg-culinary-pill);
+  color: var(--color-culinary);
+  border-style: solid;
+  border-color: var(--border-culinary);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Componente Característico 3: Pase de Compra Dividido (Dual Lane)
+   ========================================================================== */
+.cart-lane-group {
+  margin-bottom: 1.5rem;
+}
+
+.cart-lane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.5rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 2px solid var(--border-subtle);
+}
+
+.cart-lane-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.cart-lane-culinary .cart-lane-title {
+  color: var(--color-culinary);
+}
+
+.cart-lane-non-food .cart-lane-title {
+  color: var(--color-non-food);
+}
+
+.cart-lane-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.recipe-impact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-culinary);
+  background: var(--bg-culinary-pill);
+  border: 1px solid var(--border-culinary);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+}
+
+/* ==========================================================================
+   Componente Característico 4: Bandeja de Consumo Prioritario (Despensa)
+   ========================================================================== */
+.priority-pantry-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-warning);
+  border-left: 5px solid var(--color-warning);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.priority-pantry-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.priority-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-warning-pill);
+  color: var(--color-warning);
+  border: 1px solid var(--border-warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.priority-pantry-items {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.priority-item-chip {
+  background: var(--bg-warning-pill);
+  border: 1px solid var(--border-warning);
+  color: var(--color-warning-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Medidor de Frescura Visual (3 bloques) en Tarjeta de Despensa */
+.freshness-meter-segments {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  margin-right: 0.35rem;
+}
+
+.meter-seg {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: #cbd5e1;
+}
+
+.meter-seg.seg-green {
+  background: var(--color-culinary);
+}
+
+.meter-seg.seg-orange {
+  background: var(--color-warning);
+}
+
+.meter-seg.seg-red {
+  background: var(--color-depleted);
+}
+
+/* ==========================================================================
+   Componente Característico 5: Pizarra de Comandas en Recetas
+   ========================================================================== */
+.recipe-affinity-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.affinity-100 {
+  background: var(--bg-culinary-pill);
+  color: var(--color-culinary);
+  border: 1px solid var(--border-culinary);
+}
+
+.affinity-almost {
+  background: var(--bg-warning-pill);
+  color: var(--color-warning-dark);
+  border: 1px solid var(--border-warning);
+}
+
+.recipe-cook-btn {
+  background: var(--color-culinary);
+  color: #ffffff;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all var(--transition-smooth);
+}
+
+.recipe-cook-btn:hover {
+  background: var(--color-culinary-dark);
+}
+

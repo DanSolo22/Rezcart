@@ -55,6 +55,55 @@ export function renderCartChips() {
   }
 }
 
+function getRecipeImpact(name) {
+  const lower = name.toLowerCase();
+  if (lower.includes('pollo') || lower.includes('carne')) return 'Desbloquea Pollo al Ajillo';
+  if (lower.includes('tomate') || lower.includes('ensalada')) return 'Base fresca para ensaladas';
+  if (lower.includes('huevo')) return 'Desbloquea Revueltos y Tortillas';
+  if (lower.includes('pasta') || lower.includes('espagueti')) return 'Desbloquea Espaguetis Parmesano';
+  if (lower.includes('arroz')) return 'Almacén carbohidratos despensa';
+  if (lower.includes('leche') || lower.includes('queso') || lower.includes('nata')) return 'Lácteos para cremas y salsas';
+  if (lower.includes('aguacate') || lower.includes('fruta')) return 'Pico de frescura inmediata';
+  if (lower.includes('ajo') || lower.includes('aceite') || lower.includes('especias')) return 'Aromáticos básicos de cocina';
+  return 'Nutrirá tu despensa viva';
+}
+
+function renderItemRow(item) {
+  const meta = CATEGORY_METADATA[item.category] || CATEGORY_METADATA.general;
+  const isCulinary = item.isCulinary;
+  const pillClass = isCulinary ? 'pill-culinary' : 'pill-non-food';
+  const pillText = isCulinary ? 'Cocina' : 'Hogar / Bazar';
+  const impactText = isCulinary ? getRecipeImpact(item.name) : '';
+
+  return `
+    <div class="cart-item-row ${item.bought ? 'bought' : ''}" data-item-id="${item.id}">
+      <div class="item-left">
+        <div class="item-checkbox" data-action="toggle" title="${item.bought ? 'Desmarcar' : 'Tachar como comprado'}">
+          <i class="fa-solid fa-check" style="font-size: 0.75rem;"></i>
+        </div>
+        <div class="item-info">
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
+            <span class="item-name">${item.name}</span>
+            ${isCulinary ? `<span class="recipe-impact-badge"><i class="fa-solid fa-utensils"></i> ${impactText}</span>` : ''}
+          </div>
+          <div class="item-meta">
+            <span class="pill ${pillClass}">
+              <i class="fa-solid ${meta.icon}"></i>
+              ${pillText}
+            </span>
+            <span>${meta.label}</span>
+          </div>
+        </div>
+      </div>
+      <div class="item-right">
+        <button class="btn btn-secondary btn-icon" data-action="delete" title="Eliminar del carrito" style="color: var(--text-muted);">
+          <i class="fa-solid fa-trash-can" style="font-size: 0.85rem;"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 export function renderCartItems() {
   const container = document.getElementById('cart-items-container');
   const banner = document.getElementById('checkout-banner');
@@ -63,7 +112,6 @@ export function renderCartItems() {
   const activeCart = state.getActiveCart();
   const totalItems = activeCart.items.length;
   const boughtItems = activeCart.items.filter(i => i.bought);
-  const pendingItems = activeCart.items.filter(i => !i.bought);
 
   // Actualizar banner de checkout
   if (banner) {
@@ -89,43 +137,57 @@ export function renderCartItems() {
       <div class="card" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
         <i class="fa-solid fa-basket-shopping" style="font-size: 2.5rem; margin-bottom: 0.75rem; color: var(--border-hover);"></i>
         <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 0.3rem;">Tu carrito está vacío</h3>
-        <p style="font-size: 0.85rem;">Escribe arriba o pega una lista de WhatsApp para empezar a tachar.</p>
+        <p style="font-size: 0.85rem;">Usa los botones frecuentes de arriba o escribe para empezar a tachar compras.</p>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = activeCart.items.map(item => {
-    const meta = CATEGORY_METADATA[item.category] || CATEGORY_METADATA.general;
-    const isCulinary = item.isCulinary;
-    const pillClass = isCulinary ? 'pill-culinary' : 'pill-non-food';
-    const pillText = isCulinary ? 'Cocina' : 'Hogar / Bazar';
+  // Pase de Compra Dividido (Dual Lane): Culinarios vs No Alimentarios
+  const culinaryItems = activeCart.items.filter(i => i.isCulinary);
+  const nonFoodItems = activeCart.items.filter(i => !i.isCulinary);
 
-    return `
-      <div class="cart-item-row ${item.bought ? 'bought' : ''}" data-item-id="${item.id}">
-        <div class="item-left">
-          <div class="item-checkbox" data-action="toggle">
-            <i class="fa-solid fa-check" style="font-size: 0.75rem;"></i>
+  let html = '';
+
+  if (culinaryItems.length > 0) {
+    const culinaryBoughtCount = culinaryItems.filter(i => i.bought).length;
+    html += `
+      <div class="cart-lane-group">
+        <div class="cart-lane-header cart-lane-culinary">
+          <div class="cart-lane-title">
+            <i class="fa-solid fa-kitchen-set"></i>
+            <span>Cesta Fresca & Despensa</span>
+            <span class="pill pill-culinary" style="font-size:0.7rem; padding:0.15rem 0.5rem;">${culinaryBoughtCount}/${culinaryItems.length} listos</span>
           </div>
-          <div class="item-info">
-            <span class="item-name">${item.name}</span>
-            <div class="item-meta">
-              <span class="pill ${pillClass}">
-                <i class="fa-solid ${meta.icon}"></i>
-                ${pillText}
-              </span>
-              <span>${meta.label}</span>
-            </div>
-          </div>
+          <span class="cart-lane-subtitle"><i class="fa-solid fa-arrow-down-long"></i> Traspaso directo a despensa viva al finalizar</span>
         </div>
-        <div class="item-right">
-          <button class="btn btn-secondary btn-icon" data-action="delete" title="Eliminar del carrito" style="color: var(--text-muted);">
-            <i class="fa-solid fa-trash-can" style="font-size: 0.85rem;"></i>
-          </button>
+        <div class="items-list">
+          ${culinaryItems.map(renderItemRow).join('')}
         </div>
       </div>
     `;
-  }).join('');
+  }
+
+  if (nonFoodItems.length > 0) {
+    const nonFoodBoughtCount = nonFoodItems.filter(i => i.bought).length;
+    html += `
+      <div class="cart-lane-group">
+        <div class="cart-lane-header cart-lane-non-food">
+          <div class="cart-lane-title">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Hogar, Bazar & Limpieza</span>
+            <span class="pill pill-non-food" style="font-size:0.7rem; padding:0.15rem 0.5rem;">${nonFoodBoughtCount}/${nonFoodItems.length}</span>
+          </div>
+          <span class="cart-lane-subtitle">No perecederos · Se archivan en historial</span>
+        </div>
+        <div class="items-list">
+          ${nonFoodItems.map(renderItemRow).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
 
   // Eventos de filas
   container.querySelectorAll('.cart-item-row').forEach(row => {
@@ -151,6 +213,15 @@ function bindCartEvents() {
   const btnQuickAdd = document.getElementById('btn-quick-add');
   const btnOpenPaste = document.getElementById('btn-open-paste-modal');
   const btnCheckout = document.getElementById('btn-open-checkout');
+
+  // Pellizcos Rápidos Culinarios (Quick-Tap Staples)
+  document.querySelectorAll('.staple-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const name = chip.dataset.item;
+      state.addItemToCart(name);
+      notifications.success(`Añadido: "${name}"`);
+    });
+  });
 
   if (inputQuick && btnQuickAdd) {
     const handleAdd = () => {

@@ -18,11 +18,11 @@
     <div class="header-inner">
       <a href="#" class="brand-wrapper">
         <div class="brand-icon">
-          <i class="fa-solid fa-basket-shopping"></i>
+          <i class="fa-solid fa-utensils"></i>
         </div>
         <div class="brand-text">
-          <h1>Rezcart</h1>
-          <span class="tagline">Carrito · Despensa · Recetas</span>
+          <h1>Rezcart <span class="brand-badge-pill"><i class="fa-solid fa-fire-burner"></i> Atelier Gourmet</span></h1>
+          <span class="tagline">El Ciclo Vivo: Carrito Inteligente · Despensa Viva · Cocina Diaria</span>
         </div>
       </a>
 
@@ -53,6 +53,67 @@
   <main class="app-container">
 
     <!-- ======================================================================
+         COMPONENTE DISTINTIVO: "PULSO DE COCINA" (KITCHEN VITALITY STRIP)
+         ====================================================================== -->
+    <div class="kitchen-vitality-bar" id="kitchen-vitality-bar">
+      <div class="vitality-metrics-group">
+        <!-- Métrica 1: Salud de Despensa y Frescura -->
+        <div class="vitality-item">
+          <div class="vitality-icon-circle vitality-icon-teal">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <div class="vitality-info">
+            <span class="vitality-title">Salud Despensa</span>
+            <span class="vitality-val">
+              <span id="vitality-freshness-pct">88%</span>
+              <span class="freshness-mini-gauge" title="Estado de frescura general">
+                <span class="seg-green"></span>
+                <span class="seg-green"></span>
+                <span class="seg-green"></span>
+                <span class="seg-green"></span>
+                <span class="seg-green"></span>
+                <span class="seg-green"></span>
+                <span class="seg-orange"></span>
+                <span class="seg-orange"></span>
+              </span>
+            </span>
+            <span class="vitality-sub" id="vitality-freshness-sub">6 óptimos · 2 a revisar</span>
+          </div>
+        </div>
+
+        <!-- Métrica 2: Recetas Desbloqueadas Hoy -->
+        <div class="vitality-item">
+          <div class="vitality-icon-circle vitality-icon-orange">
+            <i class="fa-solid fa-kitchen-set"></i>
+          </div>
+          <div class="vitality-info">
+            <span class="vitality-title">Cocina Hoy</span>
+            <span class="vitality-val" id="vitality-recipes-val">3 recetas</span>
+            <span class="vitality-sub">100% listas en tu despensa</span>
+          </div>
+        </div>
+
+        <!-- Métrica 3: Cesta Activa -->
+        <div class="vitality-item">
+          <div class="vitality-icon-circle vitality-icon-indigo">
+            <i class="fa-solid fa-basket-shopping"></i>
+          </div>
+          <div class="vitality-info">
+            <span class="vitality-title">Cesta Activa</span>
+            <span class="vitality-val" id="vitality-cart-val">Mercadona Semanal</span>
+            <span class="vitality-sub" id="vitality-cart-sub">4 productos pendientes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acción Estrella Rápida -->
+      <button class="btn-vitality-chef" id="btn-vitality-suggest">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>¿Qué cocinamos hoy?</span>
+      </button>
+    </div>
+
+    <!-- ======================================================================
          VISTA 1: CARRITOS DE COMPRA (CARTS)
          ====================================================================== -->
     <section class="view-section active" id="view-carts">
@@ -60,9 +121,9 @@
         <div class="section-title-wrap">
           <h2>
             <i class="fa-solid fa-cart-shopping" style="color: var(--color-culinary);"></i>
-            Tus Listas de la Compra
+            Pase de Compra & Listas
           </h2>
-          <p>Tacha mientras compras. Los alimentos culinarios se transferirán automáticamente a tu despensa.</p>
+          <p>Tacha mientras compras. Los artículos culinarios alimentarán automáticamente tu despensa viva.</p>
         </div>
       </div>
 
@@ -82,6 +143,18 @@
           <i class="fa-solid fa-paste"></i>
           <span>Pegar Lista</span>
         </button>
+      </div>
+
+      <!-- Pellizcos Rápidos Culinarios (Quick Food Staples) -->
+      <div class="quick-staples-wrap" id="quick-staples-bar">
+        <span class="staples-label"><i class="fa-solid fa-bolt"></i> Frecuentes:</span>
+        <button class="staple-chip" data-item="Pechuga de pollo fileteada"><i class="fa-solid fa-plus"></i> Pechuga de pollo</button>
+        <button class="staple-chip" data-item="Huevos camperos"><i class="fa-solid fa-plus"></i> Huevos camperos</button>
+        <button class="staple-chip" data-item="Aguacates maduros"><i class="fa-solid fa-plus"></i> Aguacates</button>
+        <button class="staple-chip" data-item="Tomates pera"><i class="fa-solid fa-plus"></i> Tomates pera</button>
+        <button class="staple-chip" data-item="Pasta espaguetis"><i class="fa-solid fa-plus"></i> Espaguetis</button>
+        <button class="staple-chip" data-item="Leche entera fresca"><i class="fa-solid fa-plus"></i> Leche entera</button>
+        <button class="staple-chip" data-item="Detergente lavadora"><i class="fa-solid fa-plus"></i> Detergente</button>
       </div>
 
       <!-- Lista Interactiva de Artículos -->

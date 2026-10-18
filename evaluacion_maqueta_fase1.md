@@ -73,20 +73,68 @@ Visualizador en vivo: [>] **[`http://localhost:8090/paletas_rezcart.html`](http:
 
 ---
 
-## 5. Galería Visual de la Maqueta
+## 4. Paleta Seleccionada e Implementada: Opción 4 (Atelier Gourmet & Platino)
 
+A petición del usuario, se ha fijado como estándar oficial de Rezcart la **Paleta 4: Atelier Gourmet & Platino**:
+
+| Token CSS | Valor | Rol Semántico |
+| :--- | :---: | :--- |
+| `--bg-canvas` | `#f3f4f6` | Platino pulcro de cocina profesional |
+| `--bg-card` | `#ffffff` | Tarjetas blancas sólidas con sombra multicapa |
+| `--color-culinary` | `#0f766e` | Verde Cerceta Profundo (Teal de mandil de chef y frescura) |
+| `--bg-culinary-pill` | `#ccfbf1` | Fondo de badge de frescura y alimentos |
+| `--color-warning` | `#ea580c` | Naranja Yema Cálido (Alimentos a vigilar / consumo en 48h) |
+| `--bg-warning-pill` | `#ffedd5` | Fondo de aviso de frescura |
+| `--color-depleted` | `#e11d48` | Frambuesa Gourmet (Agotados / reposición) |
+| `--color-ai` | `#6366f1` | Índigo Eléctrico (Chef IA y reconciliación visual) |
+| `--color-non-food` | `#475569` | Pizarra Platino (Hogar, Bazar y Limpieza) |
+
+---
+
+## 5. Elementos Característicos Únicos de Rezcart (Identidad de Atelier)
+
+Para trascender las listas y formularios genéricos, Rezcart cuenta ahora con una personalidad visual inconfundible centrada en el **ciclo vivo cocina-compra**:
+
+1. **Emblema de Atelier en Cabecera**:
+   - Logotipo con icono de vajilla/cocina en Teal profundo y badge pill satinado `ATELIER GOURMET`.
+   - Subtítulo de propósito claro: *"El Ciclo Vivo: Carrito Inteligente · Despensa Viva · Cocina Diaria"*.
+
+2. **Componente Estrella: "Pulso de Cocina" (Kitchen Vitality Strip)**:
+   - Una franja de control de alta jerarquía visible en la parte superior del canvas:
+     - **Salud de Despensa**: Porcentaje de frescura activa en vivo (`88%`) con micro-medidor segmentado.
+     - **Cocina Hoy**: Recetas 100% cocinables con lo que tienes ahora mismo en casa (`3 recetas`).
+     - **Cesta Activa**: Estado de la lista en curso (`Mercadona Semanal · 4 pendientes`).
+     - **Acción Estrella Rápida**: Botón `¿Qué cocinamos hoy?` con icono `fa-wand-magic-sparkles` que lanza de inmediato el Chef IA.
+
+3. **Pase de Compra Dividido (Dual Lane) con Impacto en Recetas**:
+   - En lugar de una lista genérica, los artículos se separan visualmente en dos carriles:
+     - **Cesta Fresca & Despensa**: Con acento Teal y badge explicativo (*"Traspaso directo a despensa viva al finalizar"*).
+     - **Hogar, Bazar & Limpieza**: Con acento Pizarra (*"No perecederos · Se archivan en historial"*).
+   - **Micro-Badges de Impacto Culinario**: Cada alimento muestra su valor para cocinar (ej. *"Desbloquea Pollo al Ajillo"*, *"Base para ensaladas"*, *"Desbloquea Revueltos"*).
+   - **Pellizcos Rápidos Culinarios (Quick Staples)**: Botones táctiles de 1 tap para alimentos habituales (*Pechuga, Huevos camperos, Aguacates, Espaguetis, Leche*) que se añaden y clasifican al instante.
+
+4. **Bandeja de Consumo Prioritario (Próximas 48h) en Despensa**:
+   - Módulo destacado en Naranja Yema que detecta automáticamente alimentos frescos en su ventana límite de consumo (sin obligar al usuario a meter fechas manuales).
+   - Botón directo para consumirlos o enviarlos al carrito de compra.
+
+5. **Medidores Visuales de Frescura (3 Segmentos)**:
+   - Cada tarjeta de despensa cuenta con 3 micro-bloques de estado visual que muestran el paso del tiempo de forma limpia y gráfica.
+
+---
+
+## 6. Galería Visual de la Maqueta
+
+* Vista Principal Atelier & Pulso de Cocina: [`assets/screenshots/08_atelier_main_view.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/08_atelier_main_view.png)
+* Despensa con Bandeja Prioritaria 48h y Medidores: [`assets/screenshots/09_despensa_bandeja_48h.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/09_despensa_bandeja_48h.png)
 * Carritos con Pegar Lista Integrado: [`assets/screenshots/01_carritos.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/01_carritos.png)
-* Despensa y Check-in 15s: [`assets/screenshots/02_despensa.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/02_despensa.png)
 * Foto Nueva Compra (Encimera) con Checklist: [`assets/screenshots/05_foto_nueva_compra.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/05_foto_nueva_compra.png)
 * Auditoría de Zona (Reconciliación 3 Columnas): [`assets/screenshots/03_foto_nevera.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/03_foto_nevera.png)
 * Recetas y Chef IA: [`assets/screenshots/04_chef_ai.png`](file:///c:/GitRepository/Rezcart/assets/screenshots/04_chef_ai.png)
 
 ---
 
-## 6. Próximo Paso Metodológico (Fase 2)
+## 7. Próximo Paso Metodológico (Fase 2 -> Fase 3)
 
-**Fase 2: Elección de Paleta y Validación con el Usuario**:
-1. Abre [`http://localhost:8090/paletas_rezcart.html`](http://localhost:8090/paletas_rezcart.html) y prueba la paleta que mejor encaje con la personalidad deseada para Rezcart.
-2. Dinos cuál prefieres (1 a 6) para consolidar los tokens en `static/css/main.css`.
-3. Navega por [`http://localhost:8090/`](http://localhost:8090/) para probar los flujos interactivos de la app.
-4. Tras validar el diseño definitivo, pasaremos a la **Fase 3: Contratos & Esquemas de Base de Datos (PostgreSQL/Supabase)**.
+1. Abre [`http://localhost:8090/`](http://localhost:8090/) en tu navegador y prueba la nueva experiencia.
+2. Comprueba cómo interactúan el Pulso de Cocina, los pellizcos rápidos de compra y la bandeja de consumo prioritario de 48h.
+3. Si el flujo y el diseño te encantan, daremos por cerrada la Fase 2 para redactar los **Contratos de Datos SQL/Supabase definitivos (Fase 3)**.

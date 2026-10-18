@@ -61,27 +61,45 @@ export function renderCheckinWidget() {
   }
 
   const currentCheckItem = staleItems[0];
-  const meta = CATEGORY_METADATA[currentCheckItem.category] || CATEGORY_METADATA.general;
+  const otherItems = staleItems.slice(1);
 
   container.innerHTML = `
-    <div class="checkin-widget">
-      <div class="checkin-content">
-        <div class="checkin-icon">
-          <i class="fa-solid fa-clock-rotate-left"></i>
+    <!-- Bandeja de Consumo Prioritario (Próximas 48h) -->
+    <div class="priority-pantry-card">
+      <div class="priority-pantry-left">
+        <div class="priority-icon-box">
+          <i class="fa-solid fa-hourglass-half"></i>
         </div>
-        <div class="checkin-text">
-          <h4>Check-in Rápido de 15 Segundos</h4>
-          <p>¿Aún tienes <strong>${currentCheckItem.name}</strong> en casa? (Lleva ${currentCheckItem.daysAgo} días registrado)</p>
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-warning-dark); display: flex; align-items: center; gap: 0.4rem;">
+            <span>Consumo Prioritario Recomendado (Próximas 48h)</span>
+            <span class="pill pill-warning" style="font-size:0.7rem; padding:0.15rem 0.5rem;">${staleItems.length} alimentos</span>
+          </h4>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem;">
+            Alcanzando su límite de frescura óptima. Cocínalos hoy para evitar desperdicio:
+          </p>
+          <div class="priority-pantry-items">
+            <span class="priority-item-chip">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <strong>${currentCheckItem.name}</strong> (${currentCheckItem.daysAgo} días)
+            </span>
+            ${otherItems.map(it => `
+              <span class="priority-item-chip">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                ${it.name} (${it.daysAgo} días)
+              </span>
+            `).join('')}
+          </div>
         </div>
       </div>
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <button class="btn btn-secondary btn-sm" id="btn-checkin-confirm">
+      <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+        <button class="btn btn-secondary btn-sm" id="btn-checkin-confirm" title="Confirmar que sigue en buen estado">
           <i class="fa-solid fa-check" style="color: var(--color-culinary);"></i>
-          <span>Sí, aún me queda</span>
+          <span>${currentCheckItem.name}: Sigue fresco</span>
         </button>
-        <button class="btn btn-danger btn-sm" id="btn-checkin-depleted">
+        <button class="btn btn-danger btn-sm" id="btn-checkin-depleted" title="Marcar gastado y devolver a lista de compra">
           <i class="fa-solid fa-basket-shopping"></i>
-          <span>Se gastó (Al carrito)</span>
+          <span>Se gastó -> Al Carrito</span>
         </button>
       </div>
     </div>
@@ -89,7 +107,7 @@ export function renderCheckinWidget() {
 
   document.getElementById('btn-checkin-confirm')?.addEventListener('click', () => {
     state.verifyFreshnessPantryItem(currentCheckItem.id);
-    notifications.success(`¡"${currentCheckItem.name}" confirmado como fresco!`);
+    notifications.success(`"${currentCheckItem.name}" verificado como fresco`);
     renderCheckinWidget();
     renderPantryItems();
   });
@@ -130,12 +148,40 @@ export function renderPantryItems() {
     const meta = CATEGORY_METADATA[item.category] || CATEGORY_METADATA.general;
     const freshness = calculateFreshness(item.category, item.daysAgo);
 
+    let gaugeHtml = '';
+    if (freshness.status === 'fresh') {
+      gaugeHtml = `
+        <span class="freshness-meter-segments" title="Frescura óptima (${item.daysAgo} días)">
+          <span class="meter-seg seg-green"></span>
+          <span class="meter-seg seg-green"></span>
+          <span class="meter-seg seg-green"></span>
+        </span>
+      `;
+    } else if (freshness.status === 'warning') {
+      gaugeHtml = `
+        <span class="freshness-meter-segments" title="Consumir pronto (${item.daysAgo} días)">
+          <span class="meter-seg seg-green"></span>
+          <span class="meter-seg seg-orange"></span>
+          <span class="meter-seg"></span>
+        </span>
+      `;
+    } else {
+      gaugeHtml = `
+        <span class="freshness-meter-segments" title="Agotado o caducado">
+          <span class="meter-seg seg-red"></span>
+          <span class="meter-seg"></span>
+          <span class="meter-seg"></span>
+        </span>
+      `;
+    }
+
     return `
-      <div class="pantry-card" data-pantry-id="${item.id}">
+      <div class="pantry-card" data-pantry-id="${item.id}" style="${freshness.status === 'warning' ? 'border-color: var(--border-warning);' : ''}">
         <div class="pantry-card-top">
           <div>
             <h4 class="pantry-item-title">${item.name}</h4>
             <div class="pantry-freshness-info">
+              ${gaugeHtml}
               <span class="freshness-indicator ${freshness.indicatorClass}"></span>
               <span>${freshness.label}</span>
             </div>
